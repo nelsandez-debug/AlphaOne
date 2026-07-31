@@ -1,0 +1,115 @@
+// Phase 0 — foundation schema.
+// Domain entities (suppliers, contracts, services, ...) start in Phase 1.
+// documents / notes / audit_log are intentionally polymorphic (recordType + recordId)
+// per CLAUDE.md — every future module attaches to these same three tables instead of
+// building its own.
+
+generator client {
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+// Matches the reference prototype's role list (Administration → Roles & Permissions).
+enum Role {
+  EXECUTIVE
+  PROCUREMENT_LEADER
+  CATEGORY_MANAGER
+  BUYER
+  APPROVER
+  FINANCE_ANALYST
+  ACCOUNTS_PAYABLE
+  COMPLIANCE_OFFICER
+  IT_ADMINISTRATOR
+  AUDITOR
+}
+
+enum PermissionLevel {
+  NONE
+  VIEW
+  EDIT
+  APPROVE
+}
+
+model User {
+  id        String   @id @default(cuid())
+  clerkId   String   @unique
+  email     String   @unique
+  name      String
+  role      Role
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  documents      Document[]
+  notes          Note[]
+  auditLogEntries AuditLogEntry[]
+}
+
+// The DB-backed equivalent of the reference's PERMISSIONS_MATRIX: a real
+// (role, module) -> level relation instead of an array indexed by module name,
+// so Administration -> Roles & Permissions (Phase 6) can edit it as data.
+model Module {
+  id    String @id @default(cuid())
+  key   String @unique
+  label String
+
+  rolePermissions RolePermission[]
+}
+
+model RolePermission {
+  id       String           @id @default(cuid())
+  role     Role
+  moduleId String
+  module   Module           @relation(fields: [moduleId], references: [id])
+  level    PermissionLevel  @default(NONE)
+
+  @@unique([role, moduleId])
+}
+
+model Document {
+  id           String   @id @default(cuid())
+  recordType   String
+  recordId     String
+  name         String
+  sizeKB       Int?
+  storageKey   String?
+  uploadedById String
+  uploadedBy   User     @relation(fields: [uploadedById], references: [id])
+  createdAt    DateTime @default(now())
+
+  @@index([recordType, recordId])
+}
+
+model Note {
+  id         String   @id @default(cuid())
+  recordType String
+  recordId   String
+  text       String
+  authorId   String
+  author     User     @relation(fields: [authorId], references: [id])
+  createdAt  DateTime @default(now())
+
+  @@index([recordType, recordId])
+}
+
+// Append-only by convention: the application layer only ever creates rows here,
+// never updates or deletes them. When an action creates a downstream record
+// (e.g. an intake disposition creating a Contract), createdRecordType/Id stores
+// a real reference to it rather than a text label.
+model AuditLogEntry {
+  id                String   @id @default(cuid())
+  recordType        String
+  recordId          String
+  actorId           String?
+  actor             User?    @relation(fields: [actorId], references: [id])
+  action            String
+  metadata          Json?
+  createdRecordType String?
+  createdRecordId   String?
+  createdAt         DateTime @default(now())
+
+  @@index([recordType, recordId])
+}
