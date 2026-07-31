@@ -35,6 +35,14 @@ demoable/testable at the end of each phase, even before the full suite is live.
   history, the module-link → filtered-list navigation mechanism, inline-editable fields.
   Build these as reusable systems once, exactly like the prototype did — that reuse is
   what makes the full-platform approach tractable at all.
+  - ✅ Auth (Clerk) + server-enforced roles/permissions, with a test proving an
+    unauthorized request is rejected (`src/app/api/modules/[key]/documents/route.test.ts`).
+  - ✅ Shared `documents`/`notes`/`audit_log` tables as real migrations (polymorphic,
+    `recordType`/`recordId`).
+  - ⬜ Suppliers/Contracts/Services schema — deferred to Phase 1 (that's where they're
+    scoped below); Phase 0 only needed the shared systems and permission model.
+  - ⬜ Module-link → filtered-list navigation, inline-editable fields — deferred to
+    Phase 1, once there's a real record type (Suppliers) to attach them to.
 - **Phase 1 — Core entities:** Suppliers, Contracts, Services. Everything else in the
   platform references these three.
 - **Phase 2 — Front door:** Intake + the disposition workflow (creates real records in
@@ -52,15 +60,35 @@ wrong — treat it as a living plan, not a fixed contract.
 
 ## Tech stack
 
-_(Proposed — swap freely, but keep this section updated as the source of truth once decided.)_
+_(Decided as of Phase 0. The app lives in `/app` at the repo root; `/reference` is the
+prototype spec, not code we ship.)_
 
-- **Frontend:** Next.js (App Router) + TypeScript + Tailwind CSS
-- **Backend:** Next.js API routes or a separate service (tRPC or REST) — TypeScript throughout
-- **Database:** Postgres, with a real schema and real foreign keys (Prisma or Drizzle as the ORM)
-- **Auth:** Clerk or Auth.js — **server-enforced roles and permissions, not client-side only**
-- **Hosting:** decide early; it shapes auth and schema choices
-- **Testing:** Vitest/Jest + Playwright for critical flows (approval chains, permission
-  boundaries, financial calculations, cross-module data integrity)
+- **Frontend:** Next.js 16 (App Router) + TypeScript + Tailwind CSS, in `/app`.
+- **Backend:** Next.js Route Handlers, TypeScript throughout. Every mutation re-checks
+  permission server-side via `src/lib/require-permission.ts` — see principle 2 below.
+- **Database:** Postgres. ORM is Prisma 7, using the `@prisma/adapter-pg` driver adapter
+  (Prisma 7 requires an explicit adapter; no more `datasource.url` in the schema file —
+  see `prisma.config.ts`). Local dev runs against a plain local Postgres 16 instance.
+- **Auth:** Clerk (`@clerk/nextjs`), with roles synced into our own `User` table
+  (`src/lib/current-user.ts`) so every FK (documents, notes, audit log) points at a real
+  row, not a bare Clerk ID. Permission levels (`NONE`/`VIEW`/`EDIT`/`APPROVE` per
+  role × module) live in the `Module`/`RolePermission` tables — the DB-backed equivalent
+  of the reference's `PERMISSIONS_MATRIX`, editable later from Administration → Roles &
+  Permissions (Phase 6) instead of hardcoded.
+- **Hosting:** Cloudflare (Workers/Pages). Not wired yet — Phase 0 only needed a working
+  local dev loop. Deploying will need an adapter for Next.js on Workers (e.g. OpenNext)
+  and a driver-adapter-compatible Postgres path (e.g. Neon + Cloudflare Hyperdrive), since
+  Prisma's default Node engine doesn't run in the Workers runtime as-is. Revisit before
+  Phase 1 ships anything meant to go live.
+- **Testing:** Vitest for unit/integration tests (see `src/**/*.test.ts`); Playwright for
+  critical flows (approval chains, permission boundaries, financial calculations,
+  cross-module data integrity) once there's UI worth driving end-to-end.
+
+Note on Next.js 16: the `middleware.ts` convention was renamed to `proxy.ts`
+(`src/proxy.ts` here). Per Next's own guidance, proxy/middleware is a first line of
+defense only — every Server Function and Route Handler must re-check auth/permission
+itself, since a matcher change could otherwise silently stop covering a route. That's
+exactly principle 2 below; don't rely on `proxy.ts` alone for enforcement.
 
 ## Non-negotiable architecture principles
 
@@ -132,8 +160,31 @@ Core entities and their real relationships (make these actual foreign keys):
 
 ## Conventions
 
-_(fill in as decided: file structure, naming, commit style, PR process)_
+- **Repo layout:** `/reference` is the prototype (spec/design-system only, never
+  imported from). `/app` is the real Next.js application — everything below runs
+  from inside `/app` unless noted.
+- **Path alias:** `@/*` → `app/src/*`.
+- **Shared/server-only code** lives under `src/lib/` and is marked with the
+  `"server-only"` import guard when it must never reach a Client Component bundle
+  (e.g. `src/lib/current-user.ts`, `src/lib/permissions.ts`, `src/lib/require-permission.ts`).
+- **Polymorphic shared tables** (`Document`, `Note`, `AuditLogEntry`) use
+  `recordType`/`recordId` string columns per CLAUDE.md's data model reference — this is
+  the deliberate exception to "real FK only," since one table serves every module.
+  Domain relationships (e.g. `Contract.supplierId`) must still be real foreign keys.
 
 ## Commands
 
-_(fill in once scaffolded: dev server, migrations, test, lint, deploy)_
+Run from `/app`:
+
+- `npm run dev` — start the Next.js dev server (Turbopack).
+- `npm run build` / `npm run start` — production build / run.
+- `npm run lint` — ESLint.
+- `npm run test` — Vitest (unit/integration tests, `src/**/*.test.ts`).
+- `npm run db:migrate` — `prisma migrate dev`, applies schema changes to the local DB.
+- `npm run db:seed` — `prisma db seed`, seeds `Module`/`RolePermission` rows from the
+  reference's `PERMISSIONS_MATRIX` (see `prisma/seed.ts`).
+- `npm run db:studio` — `prisma studio`, browse the local DB.
+
+**Local DB setup (one-time):** Postgres 16 running locally, database `alphaone`, role
+`alphaone`/`alphaone_dev` (see `.env.example`). Copy `.env.example` to `.env` and fill in
+real Clerk keys from https://dashboard.clerk.com before running auth locally.
