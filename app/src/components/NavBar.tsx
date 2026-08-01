@@ -11,6 +11,12 @@ const LINKS = [
   { href: "/purchase-orders", label: "Purchase Orders" },
   { href: "/invoices", label: "Invoices" },
   { href: "/vendor-management", label: "Vendor Management" },
+  { href: "/projects", label: "Projects" },
+  { href: "/value-tracking", label: "Value Tracking" },
+  { href: "/budget", label: "Budget" },
+  { href: "/forecast", label: "Forecast" },
+  { href: "/risk-management", label: "Risk Management" },
+  { href: "/analytics", label: "Analytics" },
 ];
 
 // Minimal nav shell so every module is reachable. Not a port of the reference's

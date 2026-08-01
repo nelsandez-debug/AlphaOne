@@ -4,23 +4,28 @@ import { Role, PermissionLevel } from "../src/generated/prisma/enums";
 
 // Mirrors the reference prototype's PERMISSION_MODULES / PERMISSIONS_MATRIX
 // (Administration -> Roles & Permissions), plus "Intake" (Phase 2), "Purchase
-// Orders", and "Vendor Management" (Phase 3) appended — the reference left Intake
-// completely ungated and piggybacked PO/Vendor Management UI on the Suppliers
-// permission instead of having their own, which principle 2 doesn't allow here.
-// Levels below are a first pass, adjustable later from Administration (Phase 6).
-const MODULES = ["Suppliers", "Sourcing", "Contracts", "Services", "Invoices", "Budget", "Admin", "Intake", "Purchase Orders", "Vendor Management"] as const;
+// Orders" / "Vendor Management" (Phase 3), and "Projects" / "Value Tracking" /
+// "Risk Management" / "Analytics" (Phase 4-5) appended — the reference left all
+// of these either completely ungated or piggybacked on the Suppliers permission
+// instead of having their own, which principle 2 doesn't allow here. Levels below
+// are a first pass, adjustable later from Administration (Phase 6).
+const MODULES = [
+  "Suppliers", "Sourcing", "Contracts", "Services", "Invoices", "Budget", "Admin",
+  "Intake", "Purchase Orders", "Vendor Management",
+  "Projects", "Value Tracking", "Risk Management", "Analytics",
+] as const;
 
 const MATRIX: Record<Role, PermissionLevel[]> = {
-  [Role.EXECUTIVE]:           ["VIEW", "VIEW", "VIEW", "VIEW", "VIEW", "VIEW", "NONE", "VIEW", "VIEW", "VIEW"] as PermissionLevel[],
-  [Role.PROCUREMENT_LEADER]:  ["EDIT", "APPROVE", "EDIT", "EDIT", "VIEW", "EDIT", "VIEW", "EDIT", "EDIT", "EDIT"] as PermissionLevel[],
-  [Role.CATEGORY_MANAGER]:    ["EDIT", "EDIT", "VIEW", "EDIT", "NONE", "VIEW", "NONE", "EDIT", "EDIT", "EDIT"] as PermissionLevel[],
-  [Role.BUYER]:               ["VIEW", "VIEW", "NONE", "NONE", "NONE", "NONE", "NONE", "EDIT", "EDIT", "VIEW"] as PermissionLevel[],
-  [Role.APPROVER]:            ["VIEW", "VIEW", "VIEW", "VIEW", "APPROVE", "VIEW", "NONE", "VIEW", "APPROVE", "VIEW"] as PermissionLevel[],
-  [Role.FINANCE_ANALYST]:     ["VIEW", "NONE", "VIEW", "VIEW", "EDIT", "EDIT", "NONE", "VIEW", "VIEW", "VIEW"] as PermissionLevel[],
-  [Role.ACCOUNTS_PAYABLE]:    ["NONE", "NONE", "NONE", "NONE", "APPROVE", "VIEW", "NONE", "NONE", "VIEW", "NONE"] as PermissionLevel[],
-  [Role.COMPLIANCE_OFFICER]:  ["VIEW", "NONE", "EDIT", "EDIT", "NONE", "NONE", "NONE", "VIEW", "NONE", "VIEW"] as PermissionLevel[],
-  [Role.IT_ADMINISTRATOR]:    ["NONE", "NONE", "NONE", "NONE", "NONE", "NONE", "EDIT", "NONE", "NONE", "NONE"] as PermissionLevel[],
-  [Role.AUDITOR]:             ["VIEW", "VIEW", "VIEW", "VIEW", "VIEW", "VIEW", "VIEW", "VIEW", "VIEW", "VIEW"] as PermissionLevel[],
+  [Role.EXECUTIVE]:           ["VIEW", "VIEW", "VIEW", "VIEW", "VIEW", "VIEW", "NONE", "VIEW", "VIEW", "VIEW", "VIEW", "VIEW", "VIEW", "VIEW"] as PermissionLevel[],
+  [Role.PROCUREMENT_LEADER]:  ["EDIT", "APPROVE", "EDIT", "EDIT", "VIEW", "EDIT", "VIEW", "EDIT", "EDIT", "EDIT", "EDIT", "EDIT", "EDIT", "VIEW"] as PermissionLevel[],
+  [Role.CATEGORY_MANAGER]:    ["EDIT", "EDIT", "VIEW", "EDIT", "NONE", "VIEW", "NONE", "EDIT", "EDIT", "EDIT", "EDIT", "EDIT", "VIEW", "VIEW"] as PermissionLevel[],
+  [Role.BUYER]:               ["VIEW", "VIEW", "NONE", "NONE", "NONE", "NONE", "NONE", "EDIT", "EDIT", "VIEW", "VIEW", "EDIT", "NONE", "VIEW"] as PermissionLevel[],
+  [Role.APPROVER]:            ["VIEW", "VIEW", "VIEW", "VIEW", "APPROVE", "VIEW", "NONE", "VIEW", "APPROVE", "VIEW", "VIEW", "APPROVE", "VIEW", "VIEW"] as PermissionLevel[],
+  [Role.FINANCE_ANALYST]:     ["VIEW", "NONE", "VIEW", "VIEW", "EDIT", "EDIT", "NONE", "VIEW", "VIEW", "VIEW", "VIEW", "APPROVE", "VIEW", "VIEW"] as PermissionLevel[],
+  [Role.ACCOUNTS_PAYABLE]:    ["NONE", "NONE", "NONE", "NONE", "APPROVE", "VIEW", "NONE", "NONE", "VIEW", "NONE", "NONE", "VIEW", "NONE", "VIEW"] as PermissionLevel[],
+  [Role.COMPLIANCE_OFFICER]:  ["VIEW", "NONE", "EDIT", "EDIT", "NONE", "NONE", "NONE", "VIEW", "NONE", "VIEW", "VIEW", "NONE", "EDIT", "VIEW"] as PermissionLevel[],
+  [Role.IT_ADMINISTRATOR]:    ["NONE", "NONE", "NONE", "NONE", "NONE", "NONE", "EDIT", "NONE", "NONE", "NONE", "NONE", "NONE", "NONE", "NONE"] as PermissionLevel[],
+  [Role.AUDITOR]:             ["VIEW", "VIEW", "VIEW", "VIEW", "VIEW", "VIEW", "VIEW", "VIEW", "VIEW", "VIEW", "VIEW", "VIEW", "VIEW", "VIEW"] as PermissionLevel[],
 };
 
 function moduleKey(label: string): string {
@@ -55,6 +60,7 @@ async function main() {
   await seedSuppliersContractsServices();
   await seedIntakeRequests();
   await seedTransactingData();
+  await seedValueAndOversightData();
 }
 
 // A handful of Phase 1 sample records (loosely modeled on the reference prototype's
@@ -311,6 +317,104 @@ async function seedTransactingData() {
   });
 
   console.log("Seeded 1 sourcing event, 1 PO, 2 invoices, 2 vendor SLAs, 2 business reviews.");
+}
+
+// Phase 4/5 sample data (BudgetCategory, Project, ValueTrackingItem, RiskFlag).
+// Own idempotency check; looks up existing Phase 1/2/3 sample rows by name/field
+// rather than threading return values across the seed functions above.
+async function seedValueAndOversightData() {
+  const existing = await prisma.budgetCategory.count();
+  if (existing > 0) {
+    console.log("Sample Phase 4/5 (Budget/Project/ValueTracking/RiskFlag) data already present, skipping.");
+    return;
+  }
+
+  const vantage = await prisma.supplier.findFirst({ where: { name: "Vantage Cloud Systems" } });
+  const halcyon = await prisma.supplier.findFirst({ where: { name: "Halcyon Facilities Group" } });
+  const hostingOrder = await prisma.contract.findFirst({ where: { name: "Vantage Cloud — Hosting Order #2291" } });
+  const vantagePo = await prisma.purchaseOrder.findFirst({ where: { supplierId: vantage?.id } });
+  const demoRequester = await prisma.user.findFirst({ where: { clerkId: "seed-demo-requester" } });
+  if (!vantage || !halcyon || !demoRequester) {
+    console.log("Phase 1/2 sample data not found, skipping Phase 4/5 sample data.");
+    return;
+  }
+
+  const itBudget = await prisma.budgetCategory.create({ data: { category: "IT & Software", allocated: 22_000_000 } });
+  await prisma.budgetCategory.create({ data: { category: "Facilities", allocated: 6_000_000 } });
+  await prisma.budgetCategory.create({ data: { category: "Logistics", allocated: 14_500_000 } });
+
+  const cloudProject = await prisma.project.create({
+    data: {
+      name: "Cloud Migration Program",
+      supplierId: vantage.id,
+      budgetCategoryId: itBudget.id,
+      budgetAmount: 1_200_000,
+      status: "ON_TRACK",
+      progress: 64,
+      riskLevel: "LOW",
+    },
+  });
+  if (hostingOrder) await prisma.contract.update({ where: { id: hostingOrder.id }, data: { projectId: cloudProject.id } });
+  if (vantagePo) await prisma.purchaseOrder.update({ where: { id: vantagePo.id }, data: { projectId: cloudProject.id } });
+
+  const facilitiesProject = await prisma.project.create({
+    data: {
+      name: "Facilities Consolidation",
+      supplierId: halcyon.id,
+      status: "AT_RISK",
+      progress: 41,
+      riskLevel: "HIGH",
+    },
+  });
+
+  if (vantagePo) {
+    await prisma.valueTrackingItem.create({
+      data: {
+        title: "Consolidated hosting tiers under the Vantage MSA",
+        type: "SAVINGS",
+        amount: 180000,
+        supplierId: vantage.id,
+        contractId: hostingOrder?.id,
+        purchaseOrderId: vantagePo.id,
+        submittedById: demoRequester.id,
+        creditedToId: demoRequester.id,
+        financeApproverId: demoRequester.id,
+        status: "APPROVED",
+        note: "Right-sized compute tiers during the annual review, reducing run-rate.",
+      },
+    });
+  }
+  await prisma.valueTrackingItem.create({
+    data: {
+      title: "Held freight rate escalation to 5% vs. planned 8%",
+      type: "COST_AVOIDANCE",
+      amount: 93000,
+      supplierId: halcyon.id,
+      submittedById: demoRequester.id,
+      creditedToId: demoRequester.id,
+      status: "PENDING_FINANCE_APPROVAL",
+      note: "Negotiated the renewal escalation down from the standard 8% clause to 5%.",
+    },
+  });
+
+  await prisma.riskFlag.create({
+    data: {
+      supplierId: halcyon.id,
+      type: "Compliance",
+      severity: "HIGH",
+      detail: "Certificate of insurance lapsed 14 days ago",
+    },
+  });
+  await prisma.riskFlag.create({
+    data: {
+      supplierId: vantage.id,
+      type: "Concentration",
+      severity: "LOW",
+      detail: "22% of IT & Software spend concentrated in one supplier",
+    },
+  });
+
+  console.log(`Seeded 3 budget categories, 2 projects (1 unlinked: ${facilitiesProject.id.slice(-6)}), 2 value tracking items, 2 risk flags.`);
 }
 
 main()

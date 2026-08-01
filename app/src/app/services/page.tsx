@@ -8,16 +8,16 @@ import { SERVICE_CRITICALITY_LABELS } from "@/lib/labels";
 export default async function ServicesPage({
   searchParams,
 }: {
-  searchParams: Promise<{ supplierId?: string; contractId?: string }>;
+  searchParams: Promise<{ supplierId?: string; contractId?: string; projectId?: string }>;
 }) {
   const access = await requirePageAccess("services");
   if (!access.allowed) return <NoAccess moduleLabel="Services" />;
 
-  const { supplierId, contractId } = await searchParams;
+  const { supplierId, contractId, projectId } = await searchParams;
 
-  const [services, suppliers, contracts, filteredSupplier, filteredContract] = await Promise.all([
+  const [services, suppliers, contracts, filteredSupplier, filteredContract, filteredProject] = await Promise.all([
     prisma.service.findMany({
-      where: { supplierId, contractId },
+      where: { supplierId, contractId, projectId },
       orderBy: { createdAt: "desc" },
       include: { supplier: { select: { id: true, name: true } }, contract: { select: { id: true, name: true } } },
     }),
@@ -25,9 +25,10 @@ export default async function ServicesPage({
     prisma.contract.findMany({ orderBy: { name: "asc" }, select: { id: true, name: true, supplierId: true } }),
     supplierId ? prisma.supplier.findUnique({ where: { id: supplierId }, select: { name: true } }) : null,
     contractId ? prisma.contract.findUnique({ where: { id: contractId }, select: { name: true } }) : null,
+    projectId ? prisma.project.findUnique({ where: { id: projectId }, select: { name: true } }) : null,
   ]);
 
-  const filterLabel = filteredSupplier?.name ?? filteredContract?.name;
+  const filterLabel = filteredSupplier?.name ?? filteredContract?.name ?? filteredProject?.name;
 
   return (
     <div className="mx-auto w-full max-w-5xl p-8">

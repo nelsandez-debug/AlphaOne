@@ -5,19 +5,20 @@ import { NoAccess } from "@/components/NoAccess";
 import { CreateInvoiceForm } from "@/components/CreateInvoiceForm";
 import { INVOICE_STATUS_LABELS, invoiceStatusBadgeClass } from "@/lib/labels";
 
-export default async function InvoicesPage({ searchParams }: { searchParams: Promise<{ supplierId?: string; onHold?: string }> }) {
+export default async function InvoicesPage({ searchParams }: { searchParams: Promise<{ supplierId?: string; onHold?: string; projectId?: string }> }) {
   const access = await requirePageAccess("invoices");
   if (!access.allowed) return <NoAccess moduleLabel="Invoices" />;
 
-  const { supplierId, onHold } = await searchParams;
-  const [invoices, suppliers, purchaseOrders] = await Promise.all([
+  const { supplierId, onHold, projectId } = await searchParams;
+  const [invoices, suppliers, purchaseOrders, filteredProject] = await Promise.all([
     prisma.invoice.findMany({
-      where: { supplierId, onHold: onHold ? onHold === "true" : undefined },
+      where: { supplierId, projectId, onHold: onHold ? onHold === "true" : undefined },
       orderBy: { createdAt: "desc" },
       include: { supplier: { select: { id: true, name: true } }, purchaseOrder: { select: { id: true } } },
     }),
     prisma.supplier.findMany({ orderBy: { name: "asc" }, select: { id: true, name: true } }),
     prisma.purchaseOrder.findMany({ orderBy: { createdAt: "desc" }, select: { id: true, supplierId: true, amount: true } }),
+    projectId ? prisma.project.findUnique({ where: { id: projectId }, select: { name: true } }) : null,
   ]);
 
   return (
@@ -30,6 +31,13 @@ export default async function InvoicesPage({ searchParams }: { searchParams: Pro
             {onHold === "true" && (
               <>
                 {" "}on hold ·{" "}
+                <Link href="/invoices" className="text-[#2563EB] hover:underline">clear filter</Link>
+              </>
+            )}
+            {filteredProject && (
+              <>
+                {" "}for <span className="font-medium text-slate-700">{filteredProject.name}</span>
+                {" · "}
                 <Link href="/invoices" className="text-[#2563EB] hover:underline">clear filter</Link>
               </>
             )}

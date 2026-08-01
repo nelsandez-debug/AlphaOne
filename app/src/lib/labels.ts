@@ -7,12 +7,15 @@ import type {
   InvoiceStatus,
   POStatus,
   POType,
+  ProjectStatus,
   RiskLevel,
   ServiceCriticality,
   SourcingParticipantStatus,
   SourcingStage,
   SupplierStatus,
   SupplierTier,
+  ValueStatus,
+  ValueType,
   VendorSlaStatus,
 } from "@/generated/prisma/enums";
 
@@ -166,6 +169,52 @@ export function vendorSlaStatusBadgeClass(status: VendorSlaStatus): string {
       return "bg-red-50 text-red-700 border-red-200";
     default:
       return "bg-slate-50 text-slate-500 border-slate-200";
+  }
+}
+
+export const PROJECT_STATUS_LABELS: Record<ProjectStatus, string> = {
+  ON_TRACK: "On Track",
+  AT_RISK: "At Risk",
+  DELAYED: "Delayed",
+  COMPLETED: "Completed",
+  CANCELLED: "Cancelled",
+};
+
+export const VALUE_TYPE_LABELS: Record<ValueType, string> = {
+  SAVINGS: "Savings",
+  COST_AVOIDANCE: "Cost Avoidance",
+  PAYMENT_TERMS_IMPROVEMENT: "Payment Terms Improvement",
+};
+
+export const VALUE_STATUS_LABELS: Record<ValueStatus, string> = {
+  PENDING_FINANCE_APPROVAL: "Pending Finance Approval",
+  APPROVED: "Approved",
+  REJECTED: "Rejected",
+};
+
+export function projectStatusBadgeClass(status: ProjectStatus): string {
+  switch (status) {
+    case "ON_TRACK":
+    case "COMPLETED":
+      return "bg-emerald-50 text-emerald-700 border-emerald-200";
+    case "AT_RISK":
+    case "DELAYED":
+      return "bg-amber-50 text-amber-700 border-amber-200";
+    case "CANCELLED":
+      return "bg-red-50 text-red-700 border-red-200";
+    default:
+      return "bg-slate-50 text-slate-500 border-slate-200";
+  }
+}
+
+export function valueStatusBadgeClass(status: ValueStatus): string {
+  switch (status) {
+    case "APPROVED":
+      return "bg-emerald-50 text-emerald-700 border-emerald-200";
+    case "REJECTED":
+      return "bg-red-50 text-red-700 border-red-200";
+    default:
+      return "bg-amber-50 text-amber-700 border-amber-200";
   }
 }
 

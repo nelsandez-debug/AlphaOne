@@ -5,20 +5,22 @@ import { NoAccess } from "@/components/NoAccess";
 import { CreatePOForm } from "@/components/CreatePOForm";
 import { PO_STATUS_LABELS, PO_TYPE_LABELS } from "@/lib/labels";
 
-export default async function PurchaseOrdersPage({ searchParams }: { searchParams: Promise<{ supplierId?: string }> }) {
+export default async function PurchaseOrdersPage({ searchParams }: { searchParams: Promise<{ supplierId?: string; projectId?: string }> }) {
   const access = await requirePageAccess("purchase-orders");
   if (!access.allowed) return <NoAccess moduleLabel="Purchase Orders" />;
 
-  const { supplierId } = await searchParams;
-  const [orders, suppliers, filteredSupplier] = await Promise.all([
+  const { supplierId, projectId } = await searchParams;
+  const [orders, suppliers, filteredSupplier, filteredProject] = await Promise.all([
     prisma.purchaseOrder.findMany({
-      where: { supplierId },
+      where: { supplierId, projectId },
       orderBy: { createdAt: "desc" },
       include: { supplier: { select: { id: true, name: true } } },
     }),
     prisma.supplier.findMany({ orderBy: { name: "asc" }, select: { id: true, name: true } }),
     supplierId ? prisma.supplier.findUnique({ where: { id: supplierId }, select: { name: true } }) : null,
+    projectId ? prisma.project.findUnique({ where: { id: projectId }, select: { name: true } }) : null,
   ]);
+  const filterLabel = filteredSupplier?.name ?? filteredProject?.name;
 
   return (
     <div className="mx-auto w-full max-w-5xl p-8">
@@ -27,9 +29,9 @@ export default async function PurchaseOrdersPage({ searchParams }: { searchParam
           <h1 className="text-xl font-semibold text-slate-900">Purchase Orders</h1>
           <p className="text-sm text-slate-500">
             {orders.length} POs
-            {filteredSupplier && (
+            {filterLabel && (
               <>
-                {" "}for <span className="font-medium text-slate-700">{filteredSupplier.name}</span>
+                {" "}for <span className="font-medium text-slate-700">{filterLabel}</span>
                 {" · "}
                 <Link href="/purchase-orders" className="text-[#2563EB] hover:underline">clear filter</Link>
               </>
