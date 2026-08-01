@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { FileText, Inbox, Layers, Truck } from "lucide-react";
+import { FileText, Gavel, Inbox, Layers, Receipt, ShieldCheck, ShoppingCart, Truck } from "lucide-react";
 import { getCurrentUser } from "@/lib/current-user";
 
 const MODULES = [
@@ -7,13 +7,17 @@ const MODULES = [
   { href: "/suppliers", label: "Suppliers", icon: Truck, description: "Tier, risk, account ownership" },
   { href: "/contracts", label: "Contracts", icon: FileText, description: "MSAs, NDAs, addenda, DPAs" },
   { href: "/services", label: "Services", icon: Layers, description: "Governance and multi-category risk" },
+  { href: "/sourcing", label: "Sourcing", icon: Gavel, description: "RFx events with real per-supplier participation" },
+  { href: "/purchase-orders", label: "Purchase Orders", icon: ShoppingCart, description: "Issued against a supplier, contract, or intake request" },
+  { href: "/invoices", label: "Invoices", icon: Receipt, description: "PO matching, holds, and exceptions" },
+  { href: "/vendor-management", label: "Vendor Management", icon: ShieldCheck, description: "SLAs, business reviews, held-invoice rollups" },
 ];
 
 export default async function Home() {
   const user = await getCurrentUser();
 
   return (
-    <div className="mx-auto w-full max-w-3xl flex flex-1 flex-col gap-8 p-16">
+    <div className="mx-auto w-full max-w-5xl flex flex-1 flex-col gap-8 p-16">
       {user && (
         <p className="text-sm text-slate-500">
           Signed in as <span className="font-medium text-slate-700">{user.name}</span> ({user.role})
@@ -22,7 +26,8 @@ export default async function Home() {
       <div>
         <h1 className="text-2xl font-semibold text-slate-900">Paradigm P2P</h1>
         <p className="mt-1 text-sm text-slate-500">
-          Phase 2 front door — Intake dispositions into the Phase 1 core entities by real foreign key.
+          Phase 3 transacting — Sourcing, Purchase Orders, Invoices, and Vendor Management,
+          all linked to Suppliers/Contracts by real foreign key.
         </p>
       </div>
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
