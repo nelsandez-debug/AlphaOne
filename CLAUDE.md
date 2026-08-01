@@ -86,6 +86,28 @@ demoable/testable at the end of each phase, even before the full suite is live.
     real `Supplier` row and links it through the audit trail
     (`src/app/api/intake/[id]/disposition/route.test.ts`).
 - **Phase 3 — Transacting:** Vendor Management, Sourcing, Purchase Orders, Invoices.
+  - ✅ `SourcingEvent` participation is a real `SourcingEventSupplier` join table with a
+    per-supplier status (invited/responded/shortlisted/awarded/declined) — the reference
+    stored this as a bare `invitedSuppliers: string[]` of names with an unrelated,
+    independently-typed `suppliers` count.
+  - ✅ `PurchaseOrder`/`Invoice`/`VendorSla`/`BusinessReview` all reference `Supplier` by
+    real FK; `Invoice.purchaseOrderId` is a real FK to `PurchaseOrder` (validated to
+    belong to the same supplier), replacing the reference's untyped `poId`/`supplier`
+    name-string matching everywhere in this phase.
+  - ✅ `PurchaseOrder` also gained two FKs the reference never had at all: `contractId`
+    (optional) and `originIntakeRequestId` (replacing the reference's dead `req: "REQ-901"`
+    string with a real link back to the `IntakeRequest` that produced the PO).
+  - ✅ Invoice holds stay exactly where the reference put them — fields on `Invoice`
+    (`onHold`/`holdReason`) — since Vendor Management only ever surfaced/aggregated that
+    flag, never owned it; no redundant hold-tracking table was added.
+  - ✅ Added "Purchase Orders" and "Vendor Management" `Module`/`RolePermission` rows —
+    the reference had no permission module for either and piggybacked their UI gating on
+    the Suppliers permission instead.
+  - ✅ Tests: a role without edit permission on Sourcing is rejected (403); inviting a
+    non-existent supplier to a sourcing event is rejected (400) and inviting the same
+    supplier twice is rejected (409); an invoice's `purchaseOrderId` must belong to the
+    same supplier as the invoice (400) — all real FK/permission checks, not reference
+    behavior (the reference had none of these guards).
 - **Phase 4 — Value & delivery:** Projects, Value Tracking (both depend on Phase 1–3
   entities existing and being linkable).
 - **Phase 5 — Oversight & reporting:** Budget, Forecast, Risk Management, Analytics —

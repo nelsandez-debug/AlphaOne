@@ -3,32 +3,37 @@ import { prisma } from "../src/lib/prisma";
 import { Role, PermissionLevel } from "../src/generated/prisma/enums";
 
 // Mirrors the reference prototype's PERMISSION_MODULES / PERMISSIONS_MATRIX
-// (Administration -> Roles & Permissions), plus "Intake" appended for Phase 2 —
-// the reference left Intake completely ungated (any currentUser could submit or
-// disposition a request), which principle 2 doesn't allow here. Levels below are
-// a first pass, adjustable later from Administration -> Roles & Permissions (Phase 6).
-const MODULES = ["Suppliers", "Sourcing", "Contracts", "Services", "Invoices", "Budget", "Admin", "Intake"] as const;
+// (Administration -> Roles & Permissions), plus "Intake" (Phase 2), "Purchase
+// Orders", and "Vendor Management" (Phase 3) appended — the reference left Intake
+// completely ungated and piggybacked PO/Vendor Management UI on the Suppliers
+// permission instead of having their own, which principle 2 doesn't allow here.
+// Levels below are a first pass, adjustable later from Administration (Phase 6).
+const MODULES = ["Suppliers", "Sourcing", "Contracts", "Services", "Invoices", "Budget", "Admin", "Intake", "Purchase Orders", "Vendor Management"] as const;
 
 const MATRIX: Record<Role, PermissionLevel[]> = {
-  [Role.EXECUTIVE]:           ["VIEW", "VIEW", "VIEW", "VIEW", "VIEW", "VIEW", "NONE", "VIEW"] as PermissionLevel[],
-  [Role.PROCUREMENT_LEADER]:  ["EDIT", "APPROVE", "EDIT", "EDIT", "VIEW", "EDIT", "VIEW", "EDIT"] as PermissionLevel[],
-  [Role.CATEGORY_MANAGER]:    ["EDIT", "EDIT", "VIEW", "EDIT", "NONE", "VIEW", "NONE", "EDIT"] as PermissionLevel[],
-  [Role.BUYER]:               ["VIEW", "VIEW", "NONE", "NONE", "NONE", "NONE", "NONE", "EDIT"] as PermissionLevel[],
-  [Role.APPROVER]:            ["VIEW", "VIEW", "VIEW", "VIEW", "APPROVE", "VIEW", "NONE", "VIEW"] as PermissionLevel[],
-  [Role.FINANCE_ANALYST]:     ["VIEW", "NONE", "VIEW", "VIEW", "EDIT", "EDIT", "NONE", "VIEW"] as PermissionLevel[],
-  [Role.ACCOUNTS_PAYABLE]:    ["NONE", "NONE", "NONE", "NONE", "APPROVE", "VIEW", "NONE", "NONE"] as PermissionLevel[],
-  [Role.COMPLIANCE_OFFICER]:  ["VIEW", "NONE", "EDIT", "EDIT", "NONE", "NONE", "NONE", "VIEW"] as PermissionLevel[],
-  [Role.IT_ADMINISTRATOR]:    ["NONE", "NONE", "NONE", "NONE", "NONE", "NONE", "EDIT", "NONE"] as PermissionLevel[],
-  [Role.AUDITOR]:             ["VIEW", "VIEW", "VIEW", "VIEW", "VIEW", "VIEW", "VIEW", "VIEW"] as PermissionLevel[],
+  [Role.EXECUTIVE]:           ["VIEW", "VIEW", "VIEW", "VIEW", "VIEW", "VIEW", "NONE", "VIEW", "VIEW", "VIEW"] as PermissionLevel[],
+  [Role.PROCUREMENT_LEADER]:  ["EDIT", "APPROVE", "EDIT", "EDIT", "VIEW", "EDIT", "VIEW", "EDIT", "EDIT", "EDIT"] as PermissionLevel[],
+  [Role.CATEGORY_MANAGER]:    ["EDIT", "EDIT", "VIEW", "EDIT", "NONE", "VIEW", "NONE", "EDIT", "EDIT", "EDIT"] as PermissionLevel[],
+  [Role.BUYER]:               ["VIEW", "VIEW", "NONE", "NONE", "NONE", "NONE", "NONE", "EDIT", "EDIT", "VIEW"] as PermissionLevel[],
+  [Role.APPROVER]:            ["VIEW", "VIEW", "VIEW", "VIEW", "APPROVE", "VIEW", "NONE", "VIEW", "APPROVE", "VIEW"] as PermissionLevel[],
+  [Role.FINANCE_ANALYST]:     ["VIEW", "NONE", "VIEW", "VIEW", "EDIT", "EDIT", "NONE", "VIEW", "VIEW", "VIEW"] as PermissionLevel[],
+  [Role.ACCOUNTS_PAYABLE]:    ["NONE", "NONE", "NONE", "NONE", "APPROVE", "VIEW", "NONE", "NONE", "VIEW", "NONE"] as PermissionLevel[],
+  [Role.COMPLIANCE_OFFICER]:  ["VIEW", "NONE", "EDIT", "EDIT", "NONE", "NONE", "NONE", "VIEW", "NONE", "VIEW"] as PermissionLevel[],
+  [Role.IT_ADMINISTRATOR]:    ["NONE", "NONE", "NONE", "NONE", "NONE", "NONE", "EDIT", "NONE", "NONE", "NONE"] as PermissionLevel[],
+  [Role.AUDITOR]:             ["VIEW", "VIEW", "VIEW", "VIEW", "VIEW", "VIEW", "VIEW", "VIEW", "VIEW", "VIEW"] as PermissionLevel[],
 };
+
+function moduleKey(label: string): string {
+  return label.toLowerCase().replace(/\s+/g, "-");
+}
 
 async function main() {
   const modules = await Promise.all(
     MODULES.map((label) =>
       prisma.module.upsert({
-        where: { key: label.toLowerCase() },
+        where: { key: moduleKey(label) },
         update: { label },
-        create: { key: label.toLowerCase(), label },
+        create: { key: moduleKey(label), label },
       })
     )
   );
@@ -49,6 +54,7 @@ async function main() {
 
   await seedSuppliersContractsServices();
   await seedIntakeRequests();
+  await seedTransactingData();
 }
 
 // A handful of Phase 1 sample records (loosely modeled on the reference prototype's
@@ -201,6 +207,110 @@ async function seedIntakeRequests() {
   });
 
   console.log("Seeded 1 demo requester and 2 sample intake requests.");
+}
+
+// Phase 3 sample data (Sourcing, Purchase Orders, Invoices, Vendor Management).
+// Own idempotency check; looks up the Phase 1 sample suppliers/contracts by name
+// rather than threading return values across the seed functions above.
+async function seedTransactingData() {
+  const existing = await prisma.sourcingEvent.count();
+  if (existing > 0) {
+    console.log("Sample Phase 3 (Sourcing/PO/Invoice/Vendor Management) data already present, skipping.");
+    return;
+  }
+
+  const vantage = await prisma.supplier.findFirst({ where: { name: "Vantage Cloud Systems" } });
+  const halcyon = await prisma.supplier.findFirst({ where: { name: "Halcyon Facilities Group" } });
+  const hostingOrder = await prisma.contract.findFirst({ where: { name: "Vantage Cloud — Hosting Order #2291" } });
+  if (!vantage || !halcyon) {
+    console.log("Phase 1 sample suppliers not found, skipping Phase 3 sample data.");
+    return;
+  }
+
+  const sourcingEvent = await prisma.sourcingEvent.create({
+    data: { title: "Freight Services — RFP 2026-Q3", type: "RFP", stage: "BID_EVALUATION", estimatedSavings: 820000 },
+  });
+  await prisma.sourcingEventSupplier.create({
+    data: { sourcingEventId: sourcingEvent.id, supplierId: halcyon.id, status: "RESPONDED" },
+  });
+  await prisma.sourcingEventSupplier.create({
+    data: { sourcingEventId: sourcingEvent.id, supplierId: vantage.id, status: "INVITED" },
+  });
+
+  const po = await prisma.purchaseOrder.create({
+    data: {
+      supplierId: vantage.id,
+      contractId: hostingOrder?.id ?? null,
+      type: "STANDARD",
+      status: "ISSUED",
+      amount: 142000,
+    },
+  });
+
+  await prisma.invoice.create({
+    data: {
+      supplierId: vantage.id,
+      purchaseOrderId: po.id,
+      amount: 142000,
+      status: "MATCHED",
+      matchConfidence: 99,
+      invoiceDate: new Date("2026-07-03"),
+      dueDate: new Date("2026-08-02"),
+      paymentTerms: "Net 30",
+      department: "IT Operations",
+      category: "IT & Software",
+    },
+  });
+  await prisma.invoice.create({
+    data: {
+      supplierId: halcyon.id,
+      amount: 18500,
+      status: "EXCEPTION",
+      onHold: true,
+      holdReason: "Amount exceeds last approved PO by 12%",
+      invoiceDate: new Date("2026-07-20"),
+      dueDate: new Date("2026-08-19"),
+      paymentTerms: "Net 30",
+      department: "Facilities",
+      category: "Facilities",
+    },
+  });
+
+  await prisma.vendorSla.create({
+    data: {
+      supplierId: vantage.id,
+      metric: "Uptime",
+      target: "99.95%",
+      actual: "99.97%",
+      status: "MET",
+    },
+  });
+  await prisma.vendorSla.create({
+    data: {
+      supplierId: halcyon.id,
+      metric: "On-site response time",
+      target: "4 hours",
+      actual: "9 hours",
+      status: "BREACHED",
+      enforcementAction: "Service credit issued",
+      enforcementDate: new Date("2026-07-15"),
+    },
+  });
+
+  await prisma.businessReview.create({
+    data: { supplierId: vantage.id, type: "QBR", scheduledDate: new Date("2026-09-15"), status: "SCHEDULED" },
+  });
+  await prisma.businessReview.create({
+    data: {
+      supplierId: halcyon.id,
+      type: "ANNUAL_REVIEW",
+      scheduledDate: new Date("2026-06-01"),
+      status: "OVERDUE",
+      notes: "Pending due to unresolved SLA breach.",
+    },
+  });
+
+  console.log("Seeded 1 sourcing event, 1 PO, 2 invoices, 2 vendor SLAs, 2 business reviews.");
 }
 
 main()

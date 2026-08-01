@@ -172,6 +172,12 @@ model Supplier {
 
   contracts Contract[]
   services  Service[]
+
+  sourcingParticipations SourcingEventSupplier[]
+  purchaseOrders         PurchaseOrder[]
+  invoices               Invoice[]
+  vendorSlas             VendorSla[]
+  businessReviews        BusinessReview[]
 }
 
 enum ContractStatus {
@@ -200,7 +206,8 @@ model Contract {
   createdAt      DateTime       @default(now())
   updatedAt      DateTime       @updatedAt
 
-  services Service[]
+  services       Service[]
+  purchaseOrders PurchaseOrder[]
 
   @@index([supplierId])
 }
@@ -280,4 +287,185 @@ model IntakeRequest {
   dispositionedAt DateTime?
   createdAt     DateTime          @default(now())
   updatedAt     DateTime          @updatedAt
+
+  purchaseOrders PurchaseOrder[]
+}
+
+// ---------------------------------------------------------------------------
+// Phase 3 — transacting (Sourcing, Purchase Orders, Invoices, Vendor Management)
+// ---------------------------------------------------------------------------
+
+// Reference prototype's sourcing events tracked participation as a bare
+// `invitedSuppliers: string[]` of names (matched elsewhere by `=== supplier.name`)
+// and a `suppliers` count that wasn't even derived from that list. Both are real
+// relations here: SourcingEventSupplier is the join, with a per-supplier status.
+enum SourcingStage {
+  MARKET_SCAN
+  BID_EVALUATION
+  AWARD_OPTIMIZATION
+  CLOSED
+}
+
+model SourcingEvent {
+  id                String          @id @default(cuid())
+  title             String
+  // Free text (RFP/RFQ/RFI) — the reference only ever embedded this in the title
+  // string; pulled into a real field here so it's actually filterable.
+  type              String?
+  stage             SourcingStage   @default(MARKET_SCAN)
+  estimatedSavings  Int?
+  createdAt         DateTime        @default(now())
+  updatedAt         DateTime        @updatedAt
+
+  participants SourcingEventSupplier[]
+}
+
+enum SourcingParticipantStatus {
+  INVITED
+  RESPONDED
+  SHORTLISTED
+  AWARDED
+  DECLINED
+}
+
+model SourcingEventSupplier {
+  id              String                    @id @default(cuid())
+  sourcingEventId String
+  sourcingEvent   SourcingEvent             @relation(fields: [sourcingEventId], references: [id])
+  supplierId      String
+  supplier        Supplier                  @relation(fields: [supplierId], references: [id])
+  status          SourcingParticipantStatus @default(INVITED)
+  createdAt       DateTime                  @default(now())
+
+  @@unique([sourcingEventId, supplierId])
+}
+
+enum POType {
+  STANDARD
+  BLANKET
+  SERVICE
+  EMERGENCY
+  RECURRING
+}
+
+enum POStatus {
+  DRAFT
+  PENDING_APPROVAL
+  ISSUED
+  RECEIVED
+  CLOSED
+}
+
+model PurchaseOrder {
+  id                  String    @id @default(cuid())
+  supplierId          String
+  supplier            Supplier  @relation(fields: [supplierId], references: [id])
+  // Neither field exists in the reference (POs there carry a loose `req: "REQ-901"`
+  // string with no lookup, and no contract reference at all) — both are real,
+  // optional FKs here so provenance and contract coverage are actually queryable.
+  contractId          String?
+  contract            Contract? @relation(fields: [contractId], references: [id])
+  originIntakeRequestId String?
+  originIntakeRequest   IntakeRequest? @relation(fields: [originIntakeRequestId], references: [id])
+  type                POType
+  status              POStatus  @default(DRAFT)
+  amount              Int
+  createdAt           DateTime  @default(now())
+  updatedAt           DateTime  @updatedAt
+
+  invoices Invoice[]
+
+  @@index([supplierId])
+  @@index([contractId])
+}
+
+enum InvoiceStatus {
+  PENDING
+  MATCHED
+  EXCEPTION
+  DISPUTED
+  PAID
+}
+
+model Invoice {
+  id              String        @id @default(cuid())
+  supplierId      String
+  supplier        Supplier      @relation(fields: [supplierId], references: [id])
+  // Real FK replacing the reference's untyped `poId` string equality match.
+  purchaseOrderId String?
+  purchaseOrder   PurchaseOrder? @relation(fields: [purchaseOrderId], references: [id])
+  amount          Int
+  status          InvoiceStatus @default(PENDING)
+  matchConfidence Int?
+  onHold          Boolean       @default(false)
+  holdReason      String?
+  overageAmount   Int?
+  overageApproved Boolean?
+  overageNote     String?
+  invoiceDate     DateTime?
+  dueDate         DateTime?
+  paymentTerms    String?
+  department      String?
+  category        String?
+  createdAt       DateTime      @default(now())
+  updatedAt       DateTime      @updatedAt
+
+  @@index([supplierId])
+  @@index([purchaseOrderId])
+}
+
+// Vendor Management is a governance layer over Suppliers/Invoices, same as the
+// reference — but VendorSla/BusinessReview reference Supplier by real FK instead
+// of a `supplier` name string, and "held invoices" is just a query against
+// Invoice.onHold (no separate hold-management table, matching how the reference
+// only ever surfaced/aggregated the flag rather than owning it).
+enum VendorSlaStatus {
+  MET
+  AT_RISK
+  BREACHED
+  NOT_TRACKED
+}
+
+model VendorSla {
+  id                String          @id @default(cuid())
+  supplierId        String
+  supplier          Supplier        @relation(fields: [supplierId], references: [id])
+  metric            String
+  target            String
+  actual            String?
+  status            VendorSlaStatus @default(NOT_TRACKED)
+  enforcementAction String?
+  enforcementDate   DateTime?
+  enforcementNote   String?
+  createdAt         DateTime        @default(now())
+  updatedAt         DateTime        @updatedAt
+
+  @@index([supplierId])
+}
+
+enum BusinessReviewType {
+  QBR
+  ANNUAL_REVIEW
+}
+
+enum BusinessReviewStatus {
+  SCHEDULED
+  COMPLETED_ON_TIME
+  COMPLETED_LATE
+  OVERDUE
+}
+
+model BusinessReview {
+  id            String               @id @default(cuid())
+  supplierId    String
+  supplier      Supplier             @relation(fields: [supplierId], references: [id])
+  type          BusinessReviewType
+  scheduledDate DateTime
+  status        BusinessReviewStatus @default(SCHEDULED)
+  completedDate DateTime?
+  notes         String?
+  createdAt     DateTime             @default(now())
+  updatedAt     DateTime             @updatedAt
+
+  @@index([supplierId])
 }
