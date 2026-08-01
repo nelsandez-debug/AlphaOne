@@ -13,8 +13,6 @@ export async function GET(_request: NextRequest, { params }: { params: Promise<{
     where: { id },
     include: {
       supplier: { select: { id: true, name: true } },
-      budgetCategory: { select: { id: true, category: true } },
-      sourcingEvent: { select: { id: true, title: true } },
       contracts: { select: { id: true, name: true } },
       services: { select: { id: true, name: true } },
       purchaseOrders: { select: { id: true, amount: true } },

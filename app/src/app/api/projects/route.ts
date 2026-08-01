@@ -10,7 +10,6 @@ export async function GET() {
     orderBy: { createdAt: "desc" },
     include: {
       supplier: { select: { id: true, name: true } },
-      budgetCategory: { select: { id: true, category: true } },
       _count: { select: { contracts: true, services: true, purchaseOrders: true, invoices: true } },
     },
   });
@@ -32,22 +31,11 @@ export async function POST(request: NextRequest) {
     const supplier = await prisma.supplier.findUnique({ where: { id: body.supplierId } });
     if (!supplier) return NextResponse.json({ error: "Unknown supplierId" }, { status: 400 });
   }
-  if (body.budgetCategoryId) {
-    const category = await prisma.budgetCategory.findUnique({ where: { id: body.budgetCategoryId } });
-    if (!category) return NextResponse.json({ error: "Unknown budgetCategoryId" }, { status: 400 });
-  }
-  if (body.sourcingEventId) {
-    const event = await prisma.sourcingEvent.findUnique({ where: { id: body.sourcingEventId } });
-    if (!event) return NextResponse.json({ error: "Unknown sourcingEventId" }, { status: 400 });
-  }
-
   const project = await prisma.project.create({
     data: {
       name: body.name,
       supplierId: body.supplierId ?? null,
-      budgetCategoryId: body.budgetCategoryId ?? null,
       budgetAmount: body.budgetAmount ?? null,
-      sourcingEventId: body.sourcingEventId ?? null,
     },
   });
 

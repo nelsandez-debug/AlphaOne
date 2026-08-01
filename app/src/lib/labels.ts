@@ -1,7 +1,5 @@
 import type { Role } from "@/generated/prisma/enums";
 import type {
-  BusinessReviewStatus,
-  BusinessReviewType,
   ContractStatus,
   IntakeRequestType,
   IntakeStage,
@@ -12,13 +10,8 @@ import type {
   ProjectStatus,
   RiskLevel,
   ServiceCriticality,
-  SourcingParticipantStatus,
-  SourcingStage,
   SupplierStatus,
   SupplierTier,
-  ValueStatus,
-  ValueType,
-  VendorSlaStatus,
 } from "@/generated/prisma/enums";
 
 export const SUPPLIER_TIER_LABELS: Record<SupplierTier, string> = {
@@ -90,21 +83,6 @@ export function stageDotClass(stage: IntakeStage): string {
   }
 }
 
-export const SOURCING_STAGE_LABELS: Record<SourcingStage, string> = {
-  MARKET_SCAN: "Market Scan",
-  BID_EVALUATION: "Bid Evaluation",
-  AWARD_OPTIMIZATION: "Award Optimization",
-  CLOSED: "Closed",
-};
-
-export const SOURCING_PARTICIPANT_STATUS_LABELS: Record<SourcingParticipantStatus, string> = {
-  INVITED: "Invited",
-  RESPONDED: "Responded",
-  SHORTLISTED: "Shortlisted",
-  AWARDED: "Awarded",
-  DECLINED: "Declined",
-};
-
 export const PO_TYPE_LABELS: Record<POType, string> = {
   STANDARD: "Standard",
   BLANKET: "Blanket",
@@ -129,25 +107,6 @@ export const INVOICE_STATUS_LABELS: Record<InvoiceStatus, string> = {
   PAID: "Paid",
 };
 
-export const VENDOR_SLA_STATUS_LABELS: Record<VendorSlaStatus, string> = {
-  MET: "Met",
-  AT_RISK: "At Risk",
-  BREACHED: "Breached",
-  NOT_TRACKED: "Not tracked",
-};
-
-export const BUSINESS_REVIEW_TYPE_LABELS: Record<BusinessReviewType, string> = {
-  QBR: "QBR",
-  ANNUAL_REVIEW: "Annual Review",
-};
-
-export const BUSINESS_REVIEW_STATUS_LABELS: Record<BusinessReviewStatus, string> = {
-  SCHEDULED: "Scheduled",
-  COMPLETED_ON_TIME: "Completed On-Time",
-  COMPLETED_LATE: "Completed Late",
-  OVERDUE: "Overdue",
-};
-
 export function invoiceStatusBadgeClass(status: InvoiceStatus): string {
   switch (status) {
     case "MATCHED":
@@ -155,19 +114,6 @@ export function invoiceStatusBadgeClass(status: InvoiceStatus): string {
       return "bg-emerald-50 text-emerald-700 border-emerald-200";
     case "EXCEPTION":
     case "DISPUTED":
-      return "bg-red-50 text-red-700 border-red-200";
-    default:
-      return "bg-slate-50 text-slate-500 border-slate-200";
-  }
-}
-
-export function vendorSlaStatusBadgeClass(status: VendorSlaStatus): string {
-  switch (status) {
-    case "MET":
-      return "bg-emerald-50 text-emerald-700 border-emerald-200";
-    case "AT_RISK":
-      return "bg-amber-50 text-amber-700 border-amber-200";
-    case "BREACHED":
       return "bg-red-50 text-red-700 border-red-200";
     default:
       return "bg-slate-50 text-slate-500 border-slate-200";
@@ -182,18 +128,6 @@ export const PROJECT_STATUS_LABELS: Record<ProjectStatus, string> = {
   CANCELLED: "Cancelled",
 };
 
-export const VALUE_TYPE_LABELS: Record<ValueType, string> = {
-  SAVINGS: "Savings",
-  COST_AVOIDANCE: "Cost Avoidance",
-  PAYMENT_TERMS_IMPROVEMENT: "Payment Terms Improvement",
-};
-
-export const VALUE_STATUS_LABELS: Record<ValueStatus, string> = {
-  PENDING_FINANCE_APPROVAL: "Pending Finance Approval",
-  APPROVED: "Approved",
-  REJECTED: "Rejected",
-};
-
 export function projectStatusBadgeClass(status: ProjectStatus): string {
   switch (status) {
     case "ON_TRACK":
@@ -206,17 +140,6 @@ export function projectStatusBadgeClass(status: ProjectStatus): string {
       return "bg-red-50 text-red-700 border-red-200";
     default:
       return "bg-slate-50 text-slate-500 border-slate-200";
-  }
-}
-
-export function valueStatusBadgeClass(status: ValueStatus): string {
-  switch (status) {
-    case "APPROVED":
-      return "bg-emerald-50 text-emerald-700 border-emerald-200";
-    case "REJECTED":
-      return "bg-red-50 text-red-700 border-red-200";
-    default:
-      return "bg-amber-50 text-amber-700 border-amber-200";
   }
 }
 
@@ -255,15 +178,6 @@ export function permissionLevelBadgeClass(level: PermissionLevel): string {
 
 export function toOptions<T extends string>(labels: Record<T, string>): { value: T; label: string }[] {
   return (Object.keys(labels) as T[]).map((value) => ({ value, label: labels[value] }));
-}
-
-// Status palette (good/warning/serious/critical) reserved for state indicators —
-// never reused as a categorical series color (dataviz skill non-negotiable).
-export function riskIndexColor(index: number): string {
-  if (index >= 75) return "#d03b3b"; // critical
-  if (index >= 50) return "#ec835a"; // serious
-  if (index >= 25) return "#fab219"; // warning
-  return "#0ca30c"; // good
 }
 
 export function formatCompactCurrency(amount: number): string {

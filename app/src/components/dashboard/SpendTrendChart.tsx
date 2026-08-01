@@ -11,7 +11,7 @@ import {
   YAxis,
 } from "recharts";
 import { formatCompactCurrency } from "@/lib/labels";
-import type { MonthlySpend } from "@/lib/forecast";
+import type { MonthlySpend } from "@/lib/dashboard";
 
 // Reference palette categorical slot 1 (blue) — validated colorblind-safe via
 // dataviz skill's validate_palette.js. A single series needs no legend (the

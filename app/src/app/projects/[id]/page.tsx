@@ -18,8 +18,6 @@ export default async function ProjectDetailPage({ params }: { params: Promise<{ 
     where: { id },
     include: {
       supplier: { select: { id: true, name: true } },
-      budgetCategory: { select: { id: true, category: true } },
-      sourcingEvent: { select: { id: true, title: true } },
       contracts: { select: { id: true, name: true } },
       services: { select: { id: true, name: true } },
       purchaseOrders: { select: { id: true, amount: true } },
@@ -41,12 +39,6 @@ export default async function ProjectDetailPage({ params }: { params: Promise<{ 
         <div className="flex items-center gap-2 text-xs font-medium">
           {project.supplier && (
             <Link href={`/suppliers/${project.supplier.id}`} className="text-[#2563EB] hover:underline">{project.supplier.name}</Link>
-          )}
-          {project.sourcingEvent && (
-            <>
-              {project.supplier && <span className="text-slate-300">·</span>}
-              <Link href={`/sourcing/${project.sourcingEvent.id}`} className="text-[#2563EB] hover:underline">{project.sourcingEvent.title}</Link>
-            </>
           )}
         </div>
         <ProjectNameField project={project} editable={access.editable} />

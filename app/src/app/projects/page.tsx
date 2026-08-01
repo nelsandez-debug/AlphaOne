@@ -9,13 +9,12 @@ export default async function ProjectsPage() {
   const access = await requirePageAccess("projects");
   if (!access.allowed) return <NoAccess moduleLabel="Projects" />;
 
-  const [projects, suppliers, budgetCategories] = await Promise.all([
+  const [projects, suppliers] = await Promise.all([
     prisma.project.findMany({
       orderBy: { createdAt: "desc" },
-      include: { supplier: { select: { id: true, name: true } }, budgetCategory: { select: { category: true } } },
+      include: { supplier: { select: { id: true, name: true } } },
     }),
     prisma.supplier.findMany({ orderBy: { name: "asc" }, select: { id: true, name: true } }),
-    prisma.budgetCategory.findMany({ orderBy: { category: "asc" }, select: { id: true, category: true } }),
   ]);
 
   return (
@@ -25,7 +24,7 @@ export default async function ProjectsPage() {
           <h1 className="text-xl font-semibold text-slate-900">Projects</h1>
           <p className="text-sm text-slate-500">{projects.length} projects</p>
         </div>
-        {access.editable && <CreateProjectForm suppliers={suppliers} budgetCategories={budgetCategories} />}
+        {access.editable && <CreateProjectForm suppliers={suppliers} />}
       </div>
 
       <div className="rounded-xl border border-slate-200 bg-white overflow-hidden">
@@ -34,7 +33,7 @@ export default async function ProjectsPage() {
             <tr className="border-b border-slate-100 text-left text-xs uppercase tracking-wide text-slate-400">
               <th className="px-4 py-2.5 font-medium">Name</th>
               <th className="px-4 py-2.5 font-medium">Supplier</th>
-              <th className="px-4 py-2.5 font-medium">Budget</th>
+              <th className="px-4 py-2.5 font-medium">Budget amount</th>
               <th className="px-4 py-2.5 font-medium">Status</th>
               <th className="px-4 py-2.5 font-medium">Progress</th>
             </tr>
@@ -52,7 +51,7 @@ export default async function ProjectsPage() {
                     <span className="text-slate-400 italic">None</span>
                   )}
                 </td>
-                <td className="px-4 py-2.5 text-slate-600">{p.budgetCategory?.category ?? "—"}</td>
+                <td className="px-4 py-2.5 text-slate-600">{p.budgetAmount != null ? `$${p.budgetAmount.toLocaleString()}` : "—"}</td>
                 <td className="px-4 py-2.5">
                   <span className={`inline-block rounded-full border px-2 py-0.5 text-xs ${projectStatusBadgeClass(p.status)}`}>{PROJECT_STATUS_LABELS[p.status]}</span>
                 </td>
