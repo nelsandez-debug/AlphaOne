@@ -49,6 +49,7 @@ model User {
   notes           Note[]
   auditLogEntries AuditLogEntry[]
   ownerships      Ownership[]
+  intakeRequests  IntakeRequest[]
 }
 
 // The DB-backed equivalent of the reference's PERMISSIONS_MATRIX: a real
@@ -234,4 +235,49 @@ model Service {
 
   @@index([supplierId])
   @@index([contractId])
+}
+
+// ---------------------------------------------------------------------------
+// Phase 2 — front door (Intake + disposition)
+// ---------------------------------------------------------------------------
+
+enum IntakeRequestType {
+  SERVICE_REQUEST
+  NEW_VENDOR
+  CONTRACT_REQUEST
+  CONTRACT_CHANGE
+  PURCHASE_REQUEST
+  NEW_PROJECT
+  SOURCING_EVENT
+}
+
+enum IntakeStage {
+  NEW
+  TRIAGE
+  ROUTED
+  IN_PROGRESS
+  CLOSED
+}
+
+// The disposition history itself is NOT a field on this model — unlike the reference
+// prototype's embedded `dispositions: []` array, it's real AuditLogEntry rows
+// (recordType "intake_request") reusing the Phase 0 shared audit system, with
+// createdRecordType/createdRecordId as the real FK to whatever Supplier/Contract/
+// Service the disposition created (never a text label).
+model IntakeRequest {
+  id            String            @id @default(cuid())
+  title         String
+  type          IntakeRequestType
+  category      String?
+  description   String?
+  estimatedValue Int?
+  neededBy      DateTime?
+  costCenter    String?
+  department    String?
+  requesterId   String
+  requester     User              @relation(fields: [requesterId], references: [id])
+  stage         IntakeStage       @default(NEW)
+  dispositionedAt DateTime?
+  createdAt     DateTime          @default(now())
+  updatedAt     DateTime          @updatedAt
 }

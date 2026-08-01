@@ -3,6 +3,7 @@ import { UserButton } from "@clerk/nextjs";
 
 const LINKS = [
   { href: "/", label: "Home" },
+  { href: "/intake", label: "Intake" },
   { href: "/suppliers", label: "Suppliers" },
   { href: "/contracts", label: "Contracts" },
   { href: "/services", label: "Services" },

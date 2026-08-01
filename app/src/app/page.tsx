@@ -1,8 +1,9 @@
 import Link from "next/link";
-import { FileText, Layers, Truck } from "lucide-react";
+import { FileText, Inbox, Layers, Truck } from "lucide-react";
 import { getCurrentUser } from "@/lib/current-user";
 
 const MODULES = [
+  { href: "/intake", label: "Intake", icon: Inbox, description: "The front door — submit and disposition requests" },
   { href: "/suppliers", label: "Suppliers", icon: Truck, description: "Tier, risk, account ownership" },
   { href: "/contracts", label: "Contracts", icon: FileText, description: "MSAs, NDAs, addenda, DPAs" },
   { href: "/services", label: "Services", icon: Layers, description: "Governance and multi-category risk" },
@@ -21,10 +22,10 @@ export default async function Home() {
       <div>
         <h1 className="text-2xl font-semibold text-slate-900">Paradigm P2P</h1>
         <p className="mt-1 text-sm text-slate-500">
-          Phase 1 core entities — everything else in the platform will reference these by real foreign key.
+          Phase 2 front door — Intake dispositions into the Phase 1 core entities by real foreign key.
         </p>
       </div>
-      <div className="grid gap-4 sm:grid-cols-3">
+      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
         {MODULES.map((m) => (
           <Link
             key={m.href}

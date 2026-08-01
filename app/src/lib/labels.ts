@@ -1,4 +1,4 @@
-import type { ContractStatus, RiskLevel, ServiceCriticality, SupplierStatus, SupplierTier } from "@/generated/prisma/enums";
+import type { ContractStatus, IntakeRequestType, IntakeStage, RiskLevel, ServiceCriticality, SupplierStatus, SupplierTier } from "@/generated/prisma/enums";
 
 export const SUPPLIER_TIER_LABELS: Record<SupplierTier, string> = {
   STRATEGIC: "Strategic",
@@ -35,6 +35,39 @@ export const SERVICE_CRITICALITY_LABELS: Record<ServiceCriticality, string> = {
   HIGH: "High",
   CRITICAL: "Critical",
 };
+
+export const INTAKE_REQUEST_TYPE_LABELS: Record<IntakeRequestType, string> = {
+  SERVICE_REQUEST: "Service Request",
+  NEW_VENDOR: "New Vendor",
+  CONTRACT_REQUEST: "Contract Request",
+  CONTRACT_CHANGE: "Contract Change",
+  PURCHASE_REQUEST: "Purchase Request",
+  NEW_PROJECT: "New Project",
+  SOURCING_EVENT: "RFx / Sourcing Event",
+};
+
+export const INTAKE_STAGE_LABELS: Record<IntakeStage, string> = {
+  NEW: "New",
+  TRIAGE: "Triage",
+  ROUTED: "Routed",
+  IN_PROGRESS: "In Progress",
+  CLOSED: "Closed",
+};
+
+export function stageDotClass(stage: IntakeStage): string {
+  switch (stage) {
+    case "CLOSED":
+      return "bg-emerald-500";
+    case "IN_PROGRESS":
+      return "bg-[#2563EB]";
+    case "ROUTED":
+      return "bg-[#16A34A]";
+    case "TRIAGE":
+      return "bg-amber-400";
+    default:
+      return "bg-slate-300";
+  }
+}
 
 export function toOptions<T extends string>(labels: Record<T, string>): { value: T; label: string }[] {
   return (Object.keys(labels) as T[]).map((value) => ({ value, label: labels[value] }));

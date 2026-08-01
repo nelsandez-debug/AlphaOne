@@ -66,6 +66,25 @@ demoable/testable at the end of each phase, even before the full suite is live.
     before Phase 1 goes live.
 - **Phase 2 — Front door:** Intake + the disposition workflow (creates real records in
   Phase 1 entities via real foreign keys, with a real audit trail).
+  - ✅ `IntakeRequest` with a real `requesterId` FK to `User` — the reference prototype
+    stored the requester as a plain name string; corrected here per principle 1.
+  - ✅ Disposition workflow (`src/lib/disposition.ts` + `POST /api/intake/[id]/disposition`):
+    onboarding a supplier, creating a contract, or creating a service from an intake
+    request writes a real FK (`AuditLogEntry.createdRecordType`/`createdRecordId`), not
+    a label. A request can only be dispositioned once (stage-gated); Sourcing/Projects
+    routing options exist but create nothing yet since those tables don't exist until
+    Phase 3/4.
+  - ✅ Disposition history reuses the Phase 0 `AuditLogEntry` table instead of the
+    reference's embedded `dispositions: []` array — same "shared systems stay shared"
+    reasoning as Document/Note. Documents/notes on Intake also reuse the shared system
+    (the reference didn't do this for Intake; corrected here per principle 6).
+  - ✅ Added an "Intake" `Module`/`RolePermission` row set — the reference's demo
+    `PERMISSIONS_MATRIX` left Intake completely ungated, which principle 2 doesn't allow.
+  - ✅ Tests: a role without edit permission on Intake is rejected (403) on disposition;
+    an already-dispositioned request is rejected (409); an unknown action for the
+    request's type is rejected (400); onboarding a supplier via disposition creates a
+    real `Supplier` row and links it through the audit trail
+    (`src/app/api/intake/[id]/disposition/route.test.ts`).
 - **Phase 3 — Transacting:** Vendor Management, Sourcing, Purchase Orders, Invoices.
 - **Phase 4 — Value & delivery:** Projects, Value Tracking (both depend on Phase 1–3
   entities existing and being linkable).
