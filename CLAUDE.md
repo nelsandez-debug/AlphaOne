@@ -58,12 +58,19 @@ demoable/testable at the end of each phase, even before the full suite is live.
   - ✅ Tests: a role with VIEW-but-not-EDIT is rejected on `PATCH /api/suppliers/[id]`
     (`src/app/api/suppliers/[id]/route.test.ts`), and `POST /api/contracts` rejects a
     `supplierId` that isn't a real Supplier row (`src/app/api/contracts/route.test.ts`).
-  - ⚠️ Known follow-up: Clerk's `createRouteMatcher`/`clerkMiddleware` path-based
-    protection (`src/proxy.ts`) is deprecated in favor of resource-based checks —
-    doesn't block anything since every page/route already re-checks auth+permission
-    itself (`requirePageAccess`/`requirePermission`), but worth migrating per
-    https://clerk.com/docs/guides/development/upgrading/upgrade-guides/migrate-from-create-route-matcher
-    before Phase 1 goes live.
+  - ✅ Known follow-up resolved (differently than planned): `src/proxy.ts`
+    (Clerk's `createRouteMatcher`/`clerkMiddleware`) is removed outright rather
+    than migrated to resource-based checks. Cause: deploying to Cloudflare
+    Workers via OpenNext (see Hosting below) requires Edge-runtime middleware,
+    but Next.js 16 hard-codes `proxy.ts` to the Node.js runtime and throws if
+    you try to set `runtime` in it — so Node-runtime middleware and
+    Workers-via-OpenNext are currently incompatible outright, not just a
+    deprecation to migrate away from. Since every page/route already
+    re-checks auth+permission itself (`requirePageAccess`/`requirePermission`
+    — principle 2), removing the file changes nothing about what's actually
+    enforced; the only behavioral difference is an unauthenticated page visit
+    now redirects from inside the page's own `requirePageAccess()` call
+    instead of one layer earlier.
 - **Phase 2 — Front door:** Intake + the disposition workflow (creates real records in
   Phase 1 entities via real foreign keys, with a real audit trail).
   - ✅ `IntakeRequest` with a real `requesterId` FK to `User` — the reference prototype
@@ -219,20 +226,35 @@ prototype spec, not code we ship.)_
   role × module) live in the `Module`/`RolePermission` tables — the DB-backed equivalent
   of the reference's `PERMISSIONS_MATRIX`, editable later from Administration → Roles &
   Permissions (Phase 6) instead of hardcoded.
-- **Hosting:** Cloudflare (Workers/Pages). Not wired yet — Phase 0 only needed a working
-  local dev loop. Deploying will need an adapter for Next.js on Workers (e.g. OpenNext)
-  and a driver-adapter-compatible Postgres path (e.g. Neon + Cloudflare Hyperdrive), since
-  Prisma's default Node engine doesn't run in the Workers runtime as-is. Revisit before
-  Phase 1 ships anything meant to go live.
+- **Hosting:** Cloudflare Workers, via `@opennextjs/cloudflare` (`wrangler.jsonc`,
+  `open-next.config.ts`; `npm run deploy` builds and deploys). Postgres is Neon,
+  reached through a Hyperdrive binding (`HYPERDRIVE` in `wrangler.jsonc`) rather than a
+  `DATABASE_URL` env var — `src/lib/prisma.ts` resolves the connection string from
+  `DATABASE_URL` when present (local dev/tests) or from `getCloudflareContext().env.HYPERDRIVE`
+  when not (deployed), so the same `PrismaPg` adapter/schema works in both places
+  without a second code path. `CLERK_SECRET_KEY` is a Wrangler secret, not a repo file.
+  ⚠️ Known blocker: the compiled Worker is ~3.76 MiB gzipped, over the Workers **Free**
+  plan's 3 MiB cap (Paid raises it to 10 MiB, which comfortably fits — no code changes
+  needed there). The one large lever available — Prisma 7's smaller `query_compiler_small`
+  WASM variant instead of the default `query_compiler_fast` (~770 KiB gzip savings, ~40%
+  of the bundle) — was tried and reverted: it broke real query serialization (an
+  `undefined` landed in an `in: [...]` filter, failing all 26 tests), so it's not a safe
+  swap. Everything else in the bundle is core Next.js/Prisma/Clerk framework weight with
+  no unnecessary chunk left to cut. Neon (schema migrated + seeded) and the Hyperdrive
+  config both work end-to-end and were verified independently of this; deploying for real
+  needs either the Paid plan or a materially different approach to the query engine.
 - **Testing:** Vitest for unit/integration tests (see `src/**/*.test.ts`); Playwright for
   critical flows (approval chains, permission boundaries, financial calculations,
   cross-module data integrity) once there's UI worth driving end-to-end.
 
-Note on Next.js 16: the `middleware.ts` convention was renamed to `proxy.ts`
-(`src/proxy.ts` here). Per Next's own guidance, proxy/middleware is a first line of
-defense only — every Server Function and Route Handler must re-check auth/permission
-itself, since a matcher change could otherwise silently stop covering a route. That's
-exactly principle 2 below; don't rely on `proxy.ts` alone for enforcement.
+Note on Next.js 16 / `proxy.ts`: the `middleware.ts` convention was renamed to `proxy.ts`,
+and there is no `src/proxy.ts` in this app anymore — it was added in Phase 0, then
+removed when wiring up Cloudflare deployment (see Hosting above) because Next 16 hard-codes
+`proxy.ts` to the Node.js runtime (setting `runtime` in it throws) and OpenNext's Cloudflare
+adapter doesn't support Node-runtime middleware. This was a safe removal, not a
+regression: proxy/middleware was always documented here as a first line of defense only,
+and principle 2 already requires every Server Function and Route Handler to re-check
+auth/permission itself independent of it.
 
 ## Non-negotiable architecture principles
 

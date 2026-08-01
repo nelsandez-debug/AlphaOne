@@ -20,8 +20,9 @@ async function visibleSections(role: Parameters<typeof canView>[0]): Promise<Nav
   return sections.filter((s) => s.items.length > 0);
 }
 
-// Sign-in/sign-up are the only routes reachable without a signed-in user
-// (see src/proxy.ts) — they render full-screen with no sidebar/top bar.
+// Sign-in/sign-up are the only routes a signed-out user can reach (every
+// other page's requirePageAccess() redirects to /sign-in via getCurrentUser())
+// — they render full-screen with no sidebar/top bar.
 export async function AppShell({ children }: { children: React.ReactNode }) {
   const user = await getCurrentUser();
 
