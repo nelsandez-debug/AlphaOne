@@ -50,6 +50,10 @@ model User {
   auditLogEntries AuditLogEntry[]
   ownerships      Ownership[]
   intakeRequests  IntakeRequest[]
+
+  valueItemsSubmitted       ValueTrackingItem[] @relation("ValueSubmittedBy")
+  valueItemsCredited        ValueTrackingItem[] @relation("ValueCreditedTo")
+  valueItemsFinanceApproved ValueTrackingItem[] @relation("ValueFinanceApprover")
 }
 
 // The DB-backed equivalent of the reference's PERMISSIONS_MATRIX: a real
@@ -178,6 +182,9 @@ model Supplier {
   invoices               Invoice[]
   vendorSlas             VendorSla[]
   businessReviews        BusinessReview[]
+  projects               Project[]
+  valueTrackingItems     ValueTrackingItem[]
+  riskFlags              RiskFlag[]
 }
 
 enum ContractStatus {
@@ -203,13 +210,19 @@ model Contract {
   autoRenew      Boolean        @default(false)
   governingLaw   String?
   summary        String?
+  // Real FK replacing the reference's Project.package.contractIds: string[] —
+  // a contract is attributed to at most one project, same as a real ERP would model it.
+  projectId      String?
+  project        Project?       @relation(fields: [projectId], references: [id])
   createdAt      DateTime       @default(now())
   updatedAt      DateTime       @updatedAt
 
-  services       Service[]
-  purchaseOrders PurchaseOrder[]
+  services           Service[]
+  purchaseOrders     PurchaseOrder[]
+  valueTrackingItems ValueTrackingItem[]
 
   @@index([supplierId])
+  @@index([projectId])
 }
 
 enum ServiceCriticality {
@@ -237,11 +250,14 @@ model Service {
   // table if/when Risk Management (Phase 5) needs to query individual categories.
   riskAssessment   Json?
   lastReviewedAt   DateTime?
+  projectId        String?
+  project          Project?           @relation(fields: [projectId], references: [id])
   createdAt        DateTime           @default(now())
   updatedAt        DateTime           @updatedAt
 
   @@index([supplierId])
   @@index([contractId])
+  @@index([projectId])
 }
 
 // ---------------------------------------------------------------------------
@@ -318,6 +334,7 @@ model SourcingEvent {
   updatedAt         DateTime        @updatedAt
 
   participants SourcingEventSupplier[]
+  projects     Project[]
 }
 
 enum SourcingParticipantStatus {
@@ -370,13 +387,17 @@ model PurchaseOrder {
   type                POType
   status              POStatus  @default(DRAFT)
   amount              Int
+  projectId           String?
+  project             Project?  @relation(fields: [projectId], references: [id])
   createdAt           DateTime  @default(now())
   updatedAt           DateTime  @updatedAt
 
-  invoices Invoice[]
+  invoices           Invoice[]
+  valueTrackingItems ValueTrackingItem[]
 
   @@index([supplierId])
   @@index([contractId])
+  @@index([projectId])
 }
 
 enum InvoiceStatus {
@@ -407,11 +428,14 @@ model Invoice {
   paymentTerms    String?
   department      String?
   category        String?
+  projectId       String?
+  project         Project?      @relation(fields: [projectId], references: [id])
   createdAt       DateTime      @default(now())
   updatedAt       DateTime      @updatedAt
 
   @@index([supplierId])
   @@index([purchaseOrderId])
+  @@index([projectId])
 }
 
 // Vendor Management is a governance layer over Suppliers/Invoices, same as the
@@ -466,6 +490,128 @@ model BusinessReview {
   notes         String?
   createdAt     DateTime             @default(now())
   updatedAt     DateTime             @updatedAt
+
+  @@index([supplierId])
+}
+
+// ---------------------------------------------------------------------------
+// Phase 5 — oversight & reporting (Budget; Forecast/Analytics are computed
+// views over existing data, no dedicated tables of their own)
+// ---------------------------------------------------------------------------
+
+// The reference's BUDGETS array stored `committed`/`spent` as hand-maintained,
+// static numbers alongside `allocated` — they drift from reality the moment a PO
+// or invoice changes. Only `allocated` is stored here; committed/spent are always
+// computed live from real PurchaseOrder/Invoice amounts joined through
+// Supplier.category, so they can never go stale.
+model BudgetCategory {
+  id        String   @id @default(cuid())
+  category  String   @unique
+  allocated Int
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  projects Project[]
+}
+
+// ---------------------------------------------------------------------------
+// Phase 4 — value & delivery (Project, ValueTrackingItem)
+// ---------------------------------------------------------------------------
+
+// The reference's Project.package stored contractIds/serviceIds/poIds/invoiceIds
+// as string-ID arrays in a JSON blob, and rfpId/budgetCategory as loose strings.
+// Every one of those is a real FK here instead: Contract/Service/PurchaseOrder/
+// Invoice each carry an optional projectId (a financial artifact belongs to at
+// most one project, same as a real ERP), and Project itself FKs to
+// SourcingEvent/BudgetCategory/Supplier.
+enum ProjectStatus {
+  ON_TRACK
+  AT_RISK
+  DELAYED
+  COMPLETED
+  CANCELLED
+}
+
+model Project {
+  id               String         @id @default(cuid())
+  name             String
+  supplierId       String?
+  supplier         Supplier?      @relation(fields: [supplierId], references: [id])
+  sourcingEventId  String?
+  sourcingEvent    SourcingEvent? @relation(fields: [sourcingEventId], references: [id])
+  budgetCategoryId String?
+  budgetCategory   BudgetCategory? @relation(fields: [budgetCategoryId], references: [id])
+  budgetAmount     Int?
+  status           ProjectStatus  @default(ON_TRACK)
+  progress         Int            @default(0)
+  riskLevel        RiskLevel?
+  createdAt        DateTime       @default(now())
+  updatedAt        DateTime       @updatedAt
+
+  contracts      Contract[]
+  services       Service[]
+  purchaseOrders PurchaseOrder[]
+  invoices       Invoice[]
+
+  @@index([supplierId])
+  @@index([budgetCategoryId])
+}
+
+enum ValueType {
+  SAVINGS
+  COST_AVOIDANCE
+  PAYMENT_TERMS_IMPROVEMENT
+}
+
+enum ValueStatus {
+  PENDING_FINANCE_APPROVAL
+  APPROVED
+  REJECTED
+}
+
+model ValueTrackingItem {
+  id                String        @id @default(cuid())
+  title             String
+  type              ValueType
+  amount            Int
+  supplierId        String
+  supplier          Supplier      @relation(fields: [supplierId], references: [id])
+  contractId        String?
+  contract          Contract?     @relation(fields: [contractId], references: [id])
+  purchaseOrderId   String?
+  purchaseOrder     PurchaseOrder? @relation(fields: [purchaseOrderId], references: [id])
+  submittedById     String
+  submittedBy       User          @relation("ValueSubmittedBy", fields: [submittedById], references: [id])
+  creditedToId      String
+  creditedTo        User          @relation("ValueCreditedTo", fields: [creditedToId], references: [id])
+  financeApproverId String?
+  financeApprover   User?         @relation("ValueFinanceApprover", fields: [financeApproverId], references: [id])
+  status            ValueStatus   @default(PENDING_FINANCE_APPROVAL)
+  note              String?
+  createdAt         DateTime      @default(now())
+  updatedAt         DateTime      @updatedAt
+
+  @@index([supplierId])
+  @@index([contractId])
+  @@index([purchaseOrderId])
+}
+
+// A dedicated risk register — distinct from the riskLevel/riskScore fields already
+// on Supplier/Contract/Service, same distinction the reference draws between
+// RISK_FLAGS and those per-record fields. Real FK to Supplier replacing the
+// reference's `supplier` name string.
+model RiskFlag {
+  id         String    @id @default(cuid())
+  supplierId String
+  supplier   Supplier  @relation(fields: [supplierId], references: [id])
+  // Compliance/Financial/Cyber/Concentration per the reference — free text, same
+  // reasoning as Contract.type: too varied a taxonomy to lock into an enum yet.
+  type       String
+  severity   RiskLevel
+  detail     String
+  resolved   Boolean   @default(false)
+  createdAt  DateTime  @default(now())
+  updatedAt  DateTime  @updatedAt
 
   @@index([supplierId])
 }

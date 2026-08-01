@@ -1,5 +1,20 @@
 import Link from "next/link";
-import { FileText, Gavel, Inbox, Layers, Receipt, ShieldCheck, ShoppingCart, Truck } from "lucide-react";
+import {
+  BarChart3,
+  Coins,
+  FileText,
+  Gavel,
+  Inbox,
+  Layers,
+  LineChart,
+  PieChart,
+  Receipt,
+  ShieldAlert,
+  ShieldCheck,
+  ShoppingCart,
+  TrendingUp,
+  Truck,
+} from "lucide-react";
 import { getCurrentUser } from "@/lib/current-user";
 
 const MODULES = [
@@ -11,6 +26,12 @@ const MODULES = [
   { href: "/purchase-orders", label: "Purchase Orders", icon: ShoppingCart, description: "Issued against a supplier, contract, or intake request" },
   { href: "/invoices", label: "Invoices", icon: Receipt, description: "PO matching, holds, and exceptions" },
   { href: "/vendor-management", label: "Vendor Management", icon: ShieldCheck, description: "SLAs, business reviews, held-invoice rollups" },
+  { href: "/projects", label: "Projects", icon: TrendingUp, description: "Real links to contracts, services, POs, invoices" },
+  { href: "/value-tracking", label: "Value Tracking", icon: Coins, description: "Savings/avoidance items with a finance-approval workflow" },
+  { href: "/budget", label: "Budget", icon: BarChart3, description: "Allocated budget vs. live committed/spent" },
+  { href: "/forecast", label: "Forecast", icon: LineChart, description: "Actual spend by month plus a simple run-rate projection" },
+  { href: "/risk-management", label: "Risk Management", icon: ShieldAlert, description: "A live risk register, not a fabricated score" },
+  { href: "/analytics", label: "Analytics", icon: PieChart, description: "Real KPIs aggregated across every module" },
 ];
 
 export default async function Home() {
@@ -26,11 +47,11 @@ export default async function Home() {
       <div>
         <h1 className="text-2xl font-semibold text-slate-900">Paradigm P2P</h1>
         <p className="mt-1 text-sm text-slate-500">
-          Phase 3 transacting — Sourcing, Purchase Orders, Invoices, and Vendor Management,
-          all linked to Suppliers/Contracts by real foreign key.
+          Phases 0–5: foundation, core entities, intake, transacting, value & delivery, and
+          oversight/reporting — every module linked by real foreign key, all the way through.
         </p>
       </div>
-      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
         {MODULES.map((m) => (
           <Link
             key={m.href}

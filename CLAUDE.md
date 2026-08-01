@@ -110,8 +110,44 @@ demoable/testable at the end of each phase, even before the full suite is live.
     behavior (the reference had none of these guards).
 - **Phase 4 — Value & delivery:** Projects, Value Tracking (both depend on Phase 1–3
   entities existing and being linkable).
+  - ✅ `Project` links to Contract/Service/PurchaseOrder/Invoice via a real,
+    optional `projectId` FK on each of those four tables — the reference stored
+    `package.{contractIds,serviceIds,poIds,invoiceIds}` as string-ID arrays in a
+    JSON blob. `Project.supplierId`/`sourcingEventId`/`budgetCategoryId` are real
+    FKs too, replacing loose `supplier`/`rfpId`/`budgetCategory` strings.
+  - ✅ `ValueTrackingItem` has real FKs for `supplier`/`contract`/`purchaseOrder`
+    (cross-validated to the same supplier) and for `submittedBy`/`creditedTo`/
+    `financeApprover` (all real `User` FKs, replacing name strings). The
+    submit → finance-approval workflow (`POST /api/value-tracking/[id]/review`)
+    is stage-gated the same way Intake disposition is — reviewed once, and only
+    by a role with `APPROVE` on Value Tracking.
+  - ✅ Added "Projects" and "Value Tracking" `Module`/`RolePermission` rows —
+    neither existed in the reference's demo matrix.
 - **Phase 5 — Oversight & reporting:** Budget, Forecast, Risk Management, Analytics —
   these aggregate across everything built so far, so they come after, not before.
+  - ✅ `BudgetCategory` stores only `allocated`; `committed`/`spent`
+    (`src/lib/budget.ts`) are always computed live from real `PurchaseOrder`/
+    `Invoice` amounts joined through `Supplier.category` — the reference stored
+    both as hand-maintained static numbers that could silently drift from the
+    real POs/invoices.
+  - ✅ `RiskFlag` is a dedicated risk register with a real `supplierId` FK
+    (replacing the reference's `supplier` name string), distinct from the
+    `riskLevel`/`riskScore` fields already on Supplier/Contract/Service. The
+    "risk index" (`src/lib/risk.ts`) is a transparent weighted-count heuristic,
+    explicitly labeled as not a prediction — per principle 4, nothing here
+    claims to be AI-driven.
+  - ✅ Forecast and Analytics have no dedicated tables — both are 100% computed
+    views (`src/lib/forecast.ts`, `src/lib/analytics.ts`) over real Invoice/
+    ValueTrackingItem/RiskFlag/BudgetCategory data. The reference's KPIS/
+    FORECAST_DATA/AGENTS arrays were fabricated demo numbers and unlabeled fake
+    "AI agents" — neither is ported; every number shown is a real aggregation.
+  - ✅ Added "Risk Management" and "Analytics" `Module`/`RolePermission` rows
+    (Forecast is gated under Analytics, since it's the same read-only reporting
+    concern with no data of its own); Budget reuses its existing module.
+  - ✅ Tests: a role without `APPROVE` on Value Tracking is rejected (403) on
+    review, and re-reviewing an already-reviewed item is rejected (409); a role
+    with only `VIEW` on Budget is rejected (403) creating a category, and a
+    duplicate category name is rejected (409).
 - **Phase 6 — Meta/no-code layer:** Workflows, Configuration Studio, Administration
   (including the Ownership hub and Roles & Permissions management).
 

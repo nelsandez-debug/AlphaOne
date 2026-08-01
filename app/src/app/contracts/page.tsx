@@ -5,21 +5,23 @@ import { NoAccess } from "@/components/NoAccess";
 import { CreateContractForm } from "@/components/CreateContractForm";
 import { CONTRACT_STATUS_LABELS, RISK_LEVEL_LABELS, riskBadgeClass } from "@/lib/labels";
 
-export default async function ContractsPage({ searchParams }: { searchParams: Promise<{ supplierId?: string }> }) {
+export default async function ContractsPage({ searchParams }: { searchParams: Promise<{ supplierId?: string; projectId?: string }> }) {
   const access = await requirePageAccess("contracts");
   if (!access.allowed) return <NoAccess moduleLabel="Contracts" />;
 
-  const { supplierId } = await searchParams;
+  const { supplierId, projectId } = await searchParams;
 
-  const [contracts, suppliers, filteredSupplier] = await Promise.all([
+  const [contracts, suppliers, filteredSupplier, filteredProject] = await Promise.all([
     prisma.contract.findMany({
-      where: supplierId ? { supplierId } : undefined,
+      where: { supplierId, projectId },
       orderBy: { createdAt: "desc" },
       include: { supplier: { select: { id: true, name: true } } },
     }),
     prisma.supplier.findMany({ orderBy: { name: "asc" }, select: { id: true, name: true } }),
     supplierId ? prisma.supplier.findUnique({ where: { id: supplierId }, select: { name: true } }) : null,
+    projectId ? prisma.project.findUnique({ where: { id: projectId }, select: { name: true } }) : null,
   ]);
+  const filterLabel = filteredSupplier?.name ?? filteredProject?.name;
 
   return (
     <div className="mx-auto w-full max-w-5xl p-8">
@@ -28,10 +30,10 @@ export default async function ContractsPage({ searchParams }: { searchParams: Pr
           <h1 className="text-xl font-semibold text-slate-900">Contracts</h1>
           <p className="text-sm text-slate-500">
             {contracts.length} contracts
-            {filteredSupplier && (
+            {filterLabel && (
               <>
                 {" "}
-                for <span className="font-medium text-slate-700">{filteredSupplier.name}</span>
+                for <span className="font-medium text-slate-700">{filterLabel}</span>
                 {" · "}
                 <Link href="/contracts" className="text-[#2563EB] hover:underline">
                   clear filter
