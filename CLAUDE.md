@@ -19,38 +19,6 @@ directly.** The visual language, component patterns, and data shapes are worth p
 The data layer, auth, and persistence are not — they were built under artifact-sandbox
 constraints that don't apply here and should not survive into the real product.
 
-## ⚠️ Current branch state: AlphaTwo reduced-scope test (temporary)
-
-The full 18-module build described below is **preserved on the `alphatwo` branch/tag**
-(pushed to origin at the point this test started). This branch (`claude/project-guide-
-first-session-1zunpx`) has been temporarily cut down to 7 modules — Intake, Suppliers,
-Contracts, Services, Purchase Orders, Invoices, Projects — as a test of whether reducing
-module count could get the compiled Cloudflare Worker under the Workers **Free** plan's
-3 MiB gzip cap (see Hosting below; the full build measured ~3.76 MiB gzipped).
-
-**Result: partial, not sufficient.** Cutting from 16 modules (Home aside) to 7 dropped
-the compiled bundle from 3760 KiB to 3523 KiB gzipped — still 451 KiB over the 3072 KiB
-cap. Root cause: roughly 8 MiB raw of the ~10.5 MiB bundle is *fixed* cost that doesn't
-shrink with module count — the Prisma WASM query compiler alone (~1.74 MiB gzipped) is
-bigger than the entire remaining gap, plus Next.js/Prisma-runtime/Clerk framework code
-(~3.3 MiB raw). Module count only affects the remaining route-specific code, which
-shrank proportionally (~4.2 MiB → ~3.3 MiB raw) but wasn't enough on its own. Closing the
-rest of the gap by cutting further would mean going down to roughly 2–3 modules — too
-thin to be a meaningful test. The clean fix remains the Workers Paid plan ($5/mo, 10 MiB
-cap), which the reduced build already fits under with no further changes needed.
-
-**Cut-down changes, for the record:** `prisma/schema.prisma` trimmed to the 7 modules'
-tables (Sourcing/VendorSla/BusinessReview/BudgetCategory/ValueTrackingItem/RiskFlag/
-WorkflowConfig and their enums removed; `Project.sourcingEventId`/`budgetCategoryId`
-dropped) via a real migration (`prisma/migrations/20260801200000_reduce_to_seven_modules`,
-applied to both local Postgres and Neon). Pages/routes/tests/components for the 9 cut
-modules deleted. `src/lib/analytics.ts`/`budget.ts`/`forecast.ts`/`risk.ts`/`ownership.ts`
-replaced by a single `src/lib/dashboard.ts` computing only from surviving models. `Module`/
-`RolePermission` rows for cut modules removed from both databases; seed data/matrix
-trimmed to the 7 modules. None of this reflects a real product decision — restore from
-`alphatwo` when returning to full scope, per principle 1: don't second-guess the
-full-platform direction mid-build.
-
 ## Build sequence (dependency-driven, not a market wedge)
 
 Even building toward the full platform, modules must be built in dependency order —

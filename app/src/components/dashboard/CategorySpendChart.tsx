@@ -2,7 +2,7 @@
 
 import { Bar, BarChart, CartesianGrid, Cell, LabelList, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
 import { formatCompactCurrency } from "@/lib/labels";
-import type { CategorySpend } from "@/lib/dashboard";
+import type { CategorySpend } from "@/lib/analytics";
 
 // One nominal dimension (category), no natural order beyond magnitude, so this
 // stays a single hue for every bar rather than a value-ramp or a categorical

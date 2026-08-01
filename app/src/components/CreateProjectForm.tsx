@@ -4,11 +4,18 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { Plus, X } from "lucide-react";
 
-export function CreateProjectForm({ suppliers }: { suppliers: { id: string; name: string }[] }) {
+export function CreateProjectForm({
+  suppliers,
+  budgetCategories,
+}: {
+  suppliers: { id: string; name: string }[];
+  budgetCategories: { id: string; category: string }[];
+}) {
   const router = useRouter();
   const [open, setOpen] = useState(false);
   const [name, setName] = useState("");
   const [supplierId, setSupplierId] = useState("");
+  const [budgetCategoryId, setBudgetCategoryId] = useState("");
   const [budgetAmount, setBudgetAmount] = useState("");
   const [submitting, setSubmitting] = useState(false);
 
@@ -34,6 +41,7 @@ export function CreateProjectForm({ suppliers }: { suppliers: { id: string; name
       body: JSON.stringify({
         name: name.trim(),
         supplierId: supplierId || null,
+        budgetCategoryId: budgetCategoryId || null,
         budgetAmount: budgetAmount ? Number(budgetAmount) : null,
       }),
     });
@@ -57,6 +65,12 @@ export function CreateProjectForm({ suppliers }: { suppliers: { id: string; name
         <option value="">No supplier</option>
         {suppliers.map((s) => (
           <option key={s.id} value={s.id}>{s.name}</option>
+        ))}
+      </select>
+      <select value={budgetCategoryId} onChange={(e) => setBudgetCategoryId(e.target.value)} className="rounded border border-slate-200 px-2 py-1 text-xs">
+        <option value="">No budget category</option>
+        {budgetCategories.map((b) => (
+          <option key={b.id} value={b.id}>{b.category}</option>
         ))}
       </select>
       <input
