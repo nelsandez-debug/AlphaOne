@@ -35,10 +35,10 @@ describe("PATCH /api/administration/permissions/[id]", () => {
     });
     // An isolated throwaway module + cell so this test never touches the real,
     // shared seeded matrix other tests rely on.
-    const module = await prisma.module.create({ data: { key: `test-module-${randomUUID()}`, label: "Test Module" } });
-    moduleId = module.id;
+    const testModule = await prisma.module.create({ data: { key: `test-module-${randomUUID()}`, label: "Test Module" } });
+    moduleId = testModule.id;
     const rolePermission = await prisma.rolePermission.create({
-      data: { role: Role.BUYER, moduleId: module.id, level: "VIEW" },
+      data: { role: Role.BUYER, moduleId: testModule.id, level: "VIEW" },
     });
     rolePermissionId = rolePermission.id;
   });
