@@ -44,6 +44,117 @@ async function main() {
   }
 
   console.log(`Seeded ${modules.length} modules x ${Object.values(Role).length} roles.`);
+
+  await seedSampleData();
+}
+
+// A handful of Phase 1 sample records (loosely modeled on the reference prototype's
+// demo data) so the Suppliers/Contracts/Services UI has something to look at locally.
+// Skipped if suppliers already exist, so re-running the seed is idempotent.
+async function seedSampleData() {
+  const existing = await prisma.supplier.count();
+  if (existing > 0) {
+    console.log("Sample Supplier/Contract/Service data already present, skipping.");
+    return;
+  }
+
+  const vantage = await prisma.supplier.create({
+    data: {
+      name: "Vantage Cloud Systems",
+      category: "IT & Software",
+      tier: "PARTNER",
+      status: "PREFERRED",
+      riskLevel: "LOW",
+      riskScore: 12,
+    },
+  });
+  const halcyon = await prisma.supplier.create({
+    data: {
+      name: "Halcyon Facilities Group",
+      category: "Facilities",
+      tier: "UNMANAGED",
+      status: "UNDER_REVIEW",
+      riskLevel: "HIGH",
+      riskScore: 78,
+    },
+  });
+  await prisma.supplier.create({
+    data: {
+      name: "Orbital Marketing Partners",
+      category: "Marketing",
+      tier: "TRANSACTIONAL",
+      status: "APPROVED",
+      riskLevel: "MEDIUM",
+      riskScore: 39,
+    },
+  });
+
+  const hostingOrder = await prisma.contract.create({
+    data: {
+      supplierId: vantage.id,
+      name: "Vantage Cloud — Hosting Order #2291",
+      type: "Service Order",
+      status: "ACTIVE",
+      effectiveDate: new Date("2026-01-15"),
+      autoRenew: true,
+      governingLaw: "Delaware, US",
+      summary: "Standard hosting order under Vantage's MSA, covering production and DR infrastructure.",
+    },
+  });
+  await prisma.contract.create({
+    data: {
+      supplierId: vantage.id,
+      name: "Vantage Cloud — Support Addendum",
+      type: "Addendum",
+      status: "ACTIVE",
+      riskLevel: "MEDIUM",
+      effectiveDate: new Date("2026-02-01"),
+      autoRenew: true,
+      governingLaw: "Delaware, US",
+      summary: "Ongoing application support and maintenance. SOC 2 Type II report renewal overdue.",
+    },
+  });
+  await prisma.contract.create({
+    data: {
+      supplierId: halcyon.id,
+      name: "Halcyon Facilities — Master Agreement",
+      type: "MSA",
+      status: "PENDING_SIGNATURE",
+      riskLevel: "HIGH",
+      autoRenew: false,
+      summary: "Pending counter-signature.",
+    },
+  });
+
+  await prisma.service.create({
+    data: {
+      supplierId: vantage.id,
+      contractId: hostingOrder.id,
+      name: "Cloud Infrastructure Hosting",
+      category: "IT & Software",
+      criticality: "CRITICAL",
+      governanceStatus: "Governed",
+      riskScore: 14,
+      riskAssessment: {
+        "Information Security": { rating: "Low", note: "Annual penetration test clean, no critical findings." },
+        "Data Privacy": { rating: "Low", note: "Covered under an active Data Processing Addendum." },
+        "Business Continuity": { rating: "Medium", note: "Last full DR failover test was 14 months ago." },
+      },
+      lastReviewedAt: new Date("2026-07-02"),
+    },
+  });
+  await prisma.service.create({
+    data: {
+      supplierId: halcyon.id,
+      name: "Facilities Maintenance",
+      category: "Facilities",
+      criticality: "HIGH",
+      governanceStatus: "Gap identified",
+      riskScore: 62,
+    },
+  });
+
+  console.log("Seeded 3 sample suppliers, 3 contracts, 2 services.");
 }
 
 main()

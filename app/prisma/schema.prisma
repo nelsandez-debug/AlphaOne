@@ -1,8 +1,10 @@
-// Phase 0 — foundation schema.
-// Domain entities (suppliers, contracts, services, ...) start in Phase 1.
-// documents / notes / audit_log are intentionally polymorphic (recordType + recordId)
-// per CLAUDE.md — every future module attaches to these same three tables instead of
-// building its own.
+// Phase 0 — foundation schema (auth, permissions, shared documents/notes/audit_log).
+// Phase 1 — core entities (Supplier, Contract, Service) below, everything else in the
+// platform will reference these three by real foreign key.
+//
+// documents / notes / ownership are intentionally polymorphic (recordType + recordId)
+// per CLAUDE.md — every module (including Supplier/Contract/Service here) attaches to
+// these same shared tables instead of building its own.
 
 generator client {
   provider = "prisma-client"
@@ -43,9 +45,10 @@ model User {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  documents      Document[]
-  notes          Note[]
+  documents       Document[]
+  notes           Note[]
   auditLogEntries AuditLogEntry[]
+  ownerships      Ownership[]
 }
 
 // The DB-backed equivalent of the reference's PERMISSIONS_MATRIX: a real
@@ -112,4 +115,123 @@ model AuditLogEntry {
   createdAt         DateTime @default(now())
 
   @@index([recordType, recordId])
+}
+
+// Current owner of any record type — one row per (recordType, recordId), reassigned
+// via upsert. Kept as its own shared/polymorphic table (like Document/Note) rather
+// than an ownerId column duplicated on Supplier/Contract/Service/etc., so a future
+// cross-module ownership leaderboard (Administration, Phase 6) queries real data
+// instead of unioning per-table columns.
+model Ownership {
+  id         String   @id @default(cuid())
+  recordType String
+  recordId   String
+  ownerId    String
+  owner      User     @relation(fields: [ownerId], references: [id])
+  assignedAt DateTime @default(now())
+
+  @@unique([recordType, recordId])
+}
+
+// ---------------------------------------------------------------------------
+// Phase 1 — core entities
+// ---------------------------------------------------------------------------
+
+enum RiskLevel {
+  LOW
+  MEDIUM
+  HIGH
+}
+
+enum SupplierTier {
+  STRATEGIC
+  PREFERRED
+  PARTNER
+  TRANSACTIONAL
+  UNMANAGED
+}
+
+enum SupplierStatus {
+  PREFERRED
+  APPROVED
+  UNDER_REVIEW
+  PENDING_ONBOARDING
+}
+
+model Supplier {
+  id        String         @id @default(cuid())
+  name      String
+  category  String
+  tier      SupplierTier
+  status    SupplierStatus
+  riskLevel RiskLevel?
+  riskScore Int?
+  createdAt DateTime       @default(now())
+  updatedAt DateTime       @updatedAt
+
+  contracts Contract[]
+  services  Service[]
+}
+
+enum ContractStatus {
+  DRAFT
+  PENDING_SIGNATURE
+  ACTIVE
+  EXPIRED
+  BREACH_FLAGGED
+}
+
+model Contract {
+  id             String         @id @default(cuid())
+  supplierId     String
+  supplier       Supplier       @relation(fields: [supplierId], references: [id])
+  name           String
+  // Free-form per the reference prototype (MSA, NDA, DPA, Service Order, Addendum,
+  // Rate Schedule, ...) — too varied a taxonomy to lock into a Postgres enum yet.
+  type           String
+  status         ContractStatus
+  riskLevel      RiskLevel?
+  effectiveDate  DateTime?
+  expirationDate DateTime?
+  autoRenew      Boolean        @default(false)
+  governingLaw   String?
+  summary        String?
+  createdAt      DateTime       @default(now())
+  updatedAt      DateTime       @updatedAt
+
+  services Service[]
+
+  @@index([supplierId])
+}
+
+enum ServiceCriticality {
+  LOW
+  MEDIUM
+  HIGH
+  CRITICAL
+}
+
+model Service {
+  id          String             @id @default(cuid())
+  supplierId  String
+  supplier    Supplier           @relation(fields: [supplierId], references: [id])
+  contractId  String?
+  contract    Contract?          @relation(fields: [contractId], references: [id])
+  name        String
+  category    String
+  criticality ServiceCriticality
+  // "Governed" / "Gap Identified" / etc. per the reference — free text for now.
+  governanceStatus String?
+  riskScore        Int?
+  // Multi-category risk ratings (Information Security, Data Privacy, ...): record-owned
+  // attribute data, not a link to another record, so a JSON blob is the right shape here
+  // (unlike Supplier/Contract references, which are real FKs). Normalize into its own
+  // table if/when Risk Management (Phase 5) needs to query individual categories.
+  riskAssessment   Json?
+  lastReviewedAt   DateTime?
+  createdAt        DateTime           @default(now())
+  updatedAt        DateTime           @updatedAt
+
+  @@index([supplierId])
+  @@index([contractId])
 }

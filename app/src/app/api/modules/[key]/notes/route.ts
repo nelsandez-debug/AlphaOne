@@ -2,9 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { guardPermission } from "@/lib/api-guard";
 
-// The shared, polymorphic Document repository (record_type + record_id) that every
-// module attaches to, gated by the server-side permission check for the module named
-// in the URL — not by anything the client sends.
+// Shared, polymorphic Notes — same pattern as the Document repository.
 
 export async function GET(request: NextRequest, { params }: { params: Promise<{ key: string }> }) {
   const { key: moduleKey } = await params;
@@ -18,13 +16,13 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
     return NextResponse.json({ error: "recordType and recordId are required" }, { status: 400 });
   }
 
-  const documents = await prisma.document.findMany({
+  const notes = await prisma.note.findMany({
     where: { recordType, recordId },
-    include: { uploadedBy: { select: { name: true } } },
+    include: { author: { select: { name: true } } },
     orderBy: { createdAt: "desc" },
   });
 
-  return NextResponse.json(documents);
+  return NextResponse.json(notes);
 }
 
 export async function POST(request: NextRequest, { params }: { params: Promise<{ key: string }> }) {
@@ -34,17 +32,16 @@ export async function POST(request: NextRequest, { params }: { params: Promise<{
   const { user } = guard;
 
   const body = await request.json();
-  if (!body?.recordType || !body?.recordId || !body?.name) {
-    return NextResponse.json({ error: "recordType, recordId, and name are required" }, { status: 400 });
+  if (!body?.recordType || !body?.recordId || !body?.text?.trim()) {
+    return NextResponse.json({ error: "recordType, recordId, and text are required" }, { status: 400 });
   }
 
-  const document = await prisma.document.create({
+  const note = await prisma.note.create({
     data: {
       recordType: body.recordType,
       recordId: body.recordId,
-      name: body.name,
-      sizeKB: body.sizeKB,
-      uploadedById: user.id,
+      text: body.text.trim(),
+      authorId: user.id,
     },
   });
 
@@ -53,9 +50,9 @@ export async function POST(request: NextRequest, { params }: { params: Promise<{
       recordType: body.recordType,
       recordId: body.recordId,
       actorId: user.id,
-      action: `Uploaded document "${document.name}"`,
+      action: "Added a note",
     },
   });
 
-  return NextResponse.json(document, { status: 201 });
+  return NextResponse.json(note, { status: 201 });
 }

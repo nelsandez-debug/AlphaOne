@@ -45,6 +45,25 @@ demoable/testable at the end of each phase, even before the full suite is live.
     Phase 1, once there's a real record type (Suppliers) to attach them to.
 - **Phase 1 — Core entities:** Suppliers, Contracts, Services. Everything else in the
   platform references these three.
+  - ✅ Supplier/Contract/Service tables with real foreign keys (`Contract.supplierId`,
+    `Service.supplierId`/`contractId`), plus a shared polymorphic `Ownership` table
+    (same `recordType`/`recordId` pattern as Document/Note) reused by all three.
+  - ✅ Inline-editable fields (`EditableText`/`EditableSelect`, ported from the
+    reference) and module-link → filtered-list navigation (`RelationshipCard`,
+    `?supplierId=`/`?contractId=` query params on the Contracts/Services list pages)
+    — built once in `src/components/`, reused across all three modules.
+  - ✅ Document repository, notes, and ownership wired to every Supplier/Contract/
+    Service detail page via the shared `/api/modules/[key]/{documents,notes,ownership}`
+    routes from Phase 0 — no bespoke per-module implementation.
+  - ✅ Tests: a role with VIEW-but-not-EDIT is rejected on `PATCH /api/suppliers/[id]`
+    (`src/app/api/suppliers/[id]/route.test.ts`), and `POST /api/contracts` rejects a
+    `supplierId` that isn't a real Supplier row (`src/app/api/contracts/route.test.ts`).
+  - ⚠️ Known follow-up: Clerk's `createRouteMatcher`/`clerkMiddleware` path-based
+    protection (`src/proxy.ts`) is deprecated in favor of resource-based checks —
+    doesn't block anything since every page/route already re-checks auth+permission
+    itself (`requirePageAccess`/`requirePermission`), but worth migrating per
+    https://clerk.com/docs/guides/development/upgrading/upgrade-guides/migrate-from-create-route-matcher
+    before Phase 1 goes live.
 - **Phase 2 — Front door:** Intake + the disposition workflow (creates real records in
   Phase 1 entities via real foreign keys, with a real audit trail).
 - **Phase 3 — Transacting:** Vendor Management, Sourcing, Purchase Orders, Invoices.

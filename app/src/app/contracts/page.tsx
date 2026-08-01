@@ -1,0 +1,91 @@
+import Link from "next/link";
+import { prisma } from "@/lib/prisma";
+import { requirePageAccess } from "@/lib/page-guard";
+import { NoAccess } from "@/components/NoAccess";
+import { CreateContractForm } from "@/components/CreateContractForm";
+import { CONTRACT_STATUS_LABELS, RISK_LEVEL_LABELS, riskBadgeClass } from "@/lib/labels";
+
+export default async function ContractsPage({ searchParams }: { searchParams: Promise<{ supplierId?: string }> }) {
+  const access = await requirePageAccess("contracts");
+  if (!access.allowed) return <NoAccess moduleLabel="Contracts" />;
+
+  const { supplierId } = await searchParams;
+
+  const [contracts, suppliers, filteredSupplier] = await Promise.all([
+    prisma.contract.findMany({
+      where: supplierId ? { supplierId } : undefined,
+      orderBy: { createdAt: "desc" },
+      include: { supplier: { select: { id: true, name: true } } },
+    }),
+    prisma.supplier.findMany({ orderBy: { name: "asc" }, select: { id: true, name: true } }),
+    supplierId ? prisma.supplier.findUnique({ where: { id: supplierId }, select: { name: true } }) : null,
+  ]);
+
+  return (
+    <div className="mx-auto w-full max-w-5xl p-8">
+      <div className="flex items-center justify-between mb-6">
+        <div>
+          <h1 className="text-xl font-semibold text-slate-900">Contracts</h1>
+          <p className="text-sm text-slate-500">
+            {contracts.length} contracts
+            {filteredSupplier && (
+              <>
+                {" "}
+                for <span className="font-medium text-slate-700">{filteredSupplier.name}</span>
+                {" · "}
+                <Link href="/contracts" className="text-[#2563EB] hover:underline">
+                  clear filter
+                </Link>
+              </>
+            )}
+          </p>
+        </div>
+        {access.editable && <CreateContractForm suppliers={suppliers} defaultSupplierId={supplierId} />}
+      </div>
+
+      <div className="rounded-xl border border-slate-200 bg-white overflow-hidden">
+        <table className="w-full text-sm">
+          <thead>
+            <tr className="border-b border-slate-100 text-left text-xs uppercase tracking-wide text-slate-400">
+              <th className="px-4 py-2.5 font-medium">Name</th>
+              <th className="px-4 py-2.5 font-medium">Supplier</th>
+              <th className="px-4 py-2.5 font-medium">Type</th>
+              <th className="px-4 py-2.5 font-medium">Status</th>
+              <th className="px-4 py-2.5 font-medium">Risk</th>
+            </tr>
+          </thead>
+          <tbody>
+            {contracts.map((c) => (
+              <tr key={c.id} className="border-b border-slate-50 last:border-0 hover:bg-slate-50">
+                <td className="px-4 py-2.5">
+                  <Link href={`/contracts/${c.id}`} className="font-medium text-slate-900 hover:text-[#2563EB]">
+                    {c.name}
+                  </Link>
+                </td>
+                <td className="px-4 py-2.5">
+                  <Link href={`/suppliers/${c.supplier.id}`} className="text-slate-600 hover:text-[#2563EB]">
+                    {c.supplier.name}
+                  </Link>
+                </td>
+                <td className="px-4 py-2.5 text-slate-600">{c.type}</td>
+                <td className="px-4 py-2.5 text-slate-600">{CONTRACT_STATUS_LABELS[c.status]}</td>
+                <td className="px-4 py-2.5">
+                  <span className={`inline-block rounded-full border px-2 py-0.5 text-xs ${riskBadgeClass(c.riskLevel)}`}>
+                    {c.riskLevel ? RISK_LEVEL_LABELS[c.riskLevel] : "Not assessed"}
+                  </span>
+                </td>
+              </tr>
+            ))}
+            {contracts.length === 0 && (
+              <tr>
+                <td colSpan={5} className="px-4 py-8 text-center text-slate-400 italic">
+                  No contracts yet.
+                </td>
+              </tr>
+            )}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  );
+}
