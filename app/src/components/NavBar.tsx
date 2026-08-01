@@ -17,11 +17,14 @@ const LINKS = [
   { href: "/forecast", label: "Forecast" },
   { href: "/risk-management", label: "Risk Management" },
   { href: "/analytics", label: "Analytics" },
+  { href: "/workflows", label: "Workflows" },
+  { href: "/administration", label: "Administration" },
 ];
 
-// Minimal nav shell so every module is reachable. Not a port of the reference's
-// full app shell (sidebar, module switcher, notifications) — that's a later
-// polish pass once the module count settles down.
+// Minimal nav shell so every module is reachable. All 18 modules are built now,
+// so this flat link list has reached the point the earlier comment here
+// predicted — a real sidebar/module-switcher (per the reference's app shell) is
+// due as the next UI polish pass, not a hypothetical future one.
 export function NavBar() {
   return (
     <header className="border-b border-slate-200 bg-white">

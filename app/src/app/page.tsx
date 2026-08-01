@@ -9,6 +9,8 @@ import {
   LineChart,
   PieChart,
   Receipt,
+  Settings,
+  Shield,
   ShieldAlert,
   ShieldCheck,
   ShoppingCart,
@@ -32,6 +34,8 @@ const MODULES = [
   { href: "/forecast", label: "Forecast", icon: LineChart, description: "Actual spend by month plus a simple run-rate projection" },
   { href: "/risk-management", label: "Risk Management", icon: ShieldAlert, description: "A live risk register, not a fabricated score" },
   { href: "/analytics", label: "Analytics", icon: PieChart, description: "Real KPIs aggregated across every module" },
+  { href: "/workflows", label: "Workflows", icon: Settings, description: "A real, audited settings registry" },
+  { href: "/administration", label: "Administration", icon: Shield, description: "Roles & Permissions, Users, Ownership hub" },
 ];
 
 export default async function Home() {
@@ -47,8 +51,8 @@ export default async function Home() {
       <div>
         <h1 className="text-2xl font-semibold text-slate-900">Paradigm P2P</h1>
         <p className="mt-1 text-sm text-slate-500">
-          Phases 0–5: foundation, core entities, intake, transacting, value & delivery, and
-          oversight/reporting — every module linked by real foreign key, all the way through.
+          Phases 0–6: every module built, all the way to the meta layer — Administration now
+          edits the same permission matrix every other page reads from, live.
         </p>
       </div>
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">

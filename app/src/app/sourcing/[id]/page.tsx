@@ -3,6 +3,7 @@ import { prisma } from "@/lib/prisma";
 import { requirePageAccess } from "@/lib/page-guard";
 import { NoAccess } from "@/components/NoAccess";
 import { RecordDocumentsNotes } from "@/components/RecordDocumentsNotes";
+import { OwnershipField } from "@/components/OwnershipField";
 import { SourcingTitleField, SourcingDetailFields } from "@/components/SourcingDetailFields";
 import { SourcingParticipants } from "@/components/SourcingParticipants";
 
@@ -18,18 +19,21 @@ export default async function SourcingDetailPage({ params }: { params: Promise<{
   if (!event) notFound();
 
   const recordType = "sourcing_event";
-  const [documents, notes, suppliers] = await Promise.all([
+  const [documents, notes, suppliers, ownership] = await Promise.all([
     prisma.document.findMany({ where: { recordType, recordId: id }, include: { uploadedBy: { select: { name: true } } }, orderBy: { createdAt: "desc" } }),
     prisma.note.findMany({ where: { recordType, recordId: id }, include: { author: { select: { name: true } } }, orderBy: { createdAt: "desc" } }),
     prisma.supplier.findMany({ orderBy: { name: "asc" }, select: { id: true, name: true } }),
+    prisma.ownership.findUnique({ where: { recordType_recordId: { recordType, recordId: id } }, include: { owner: { select: { id: true, name: true } } } }),
   ]);
 
   return (
     <div className="mx-auto w-full max-w-4xl space-y-6 p-8">
       <div>
         <SourcingTitleField event={event} editable={access.editable} />
-        <div className="mt-2">
+        <div className="mt-2 flex flex-wrap items-center gap-4">
           <SourcingDetailFields event={event} editable={access.editable} />
+          <span className="text-slate-300">·</span>
+          <OwnershipField moduleKey="sourcing" recordType={recordType} recordId={id} initialOwner={ownership?.owner ?? null} editable={access.editable} />
         </div>
       </div>
 
