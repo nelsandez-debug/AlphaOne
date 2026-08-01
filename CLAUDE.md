@@ -243,6 +243,12 @@ prototype spec, not code we ship.)_
   no unnecessary chunk left to cut. Neon (schema migrated + seeded) and the Hyperdrive
   config both work end-to-end and were verified independently of this; deploying for real
   needs either the Paid plan or a materially different approach to the query engine.
+  ✅ Resolved: also tested cutting the module count in half (7 modules) as an alternative
+  lever — real but insufficient savings (3760 → 3523 KiB gzipped, still 451 KiB over),
+  since ~8 MiB of the bundle is fixed Next.js/Prisma/Clerk/WASM cost that doesn't shrink
+  with module count. That experiment was reverted (full scope restored from the
+  `alphatwo` branch/tag, DB re-migrated/reseeded on both local Postgres and Neon) in favor
+  of upgrading to the Workers Paid plan, which needs no further code changes.
 - **Testing:** Vitest for unit/integration tests (see `src/**/*.test.ts`); Playwright for
   critical flows (approval chains, permission boundaries, financial calculations,
   cross-module data integrity) once there's UI worth driving end-to-end.
