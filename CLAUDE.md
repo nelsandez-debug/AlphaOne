@@ -150,6 +150,39 @@ demoable/testable at the end of each phase, even before the full suite is live.
     duplicate category name is rejected (409).
 - **Phase 6 — Meta/no-code layer:** Workflows, Configuration Studio, Administration
   (including the Ownership hub and Roles & Permissions management).
+  - ✅ Administration → Roles & Permissions (`/administration/permissions`) is a real,
+    editable Module × Role matrix over the `RolePermission` table — the actual
+    replacement for hand-editing `prisma/seed.ts`, not a mockup. Every
+    `requirePermission`/`requirePageAccess` call across the app reads this same table,
+    so an edit here takes effect immediately, everywhere, no redeploy.
+  - ✅ Administration → Users (`/administration/users`) lets an admin change a user's
+    `Role`, which is what actually drives their permissions via the matrix above — a
+    user can't change their own role (a 400, not a UI nicety, enforced server-side).
+  - ✅ Administration → Ownership hub (`/administration/ownership`) is a real
+    cross-module query over the shared, polymorphic `Ownership` table (leaderboard +
+    full list), resolving each `recordType` against its own table for a display name —
+    not a hardcoded leaderboard. `OwnershipField` usage was extended to
+    Sourcing/PurchaseOrders/Invoices/Projects so the hub has more than the 4 record
+    types Phase 1/2 originally wired it to (Value Tracking was deliberately skipped —
+    its `creditedTo` field already serves that role, so a second "owner" would just be
+    confusing).
+  - ✅ `WorkflowConfig` (Workflows / Configuration Studio) is a real, persisted, audited
+    on/off registry mirroring the reference's `CONFIG_ITEMS` — deliberately **not** a
+    no-code visual builder, and toggling a row does not (yet) change behavior elsewhere
+    in the app, since no rules engine reads these flags. Building an actual dynamic
+    workflow engine is real, separate scope; this stays honest about what it is
+    (principle 4's "say what you are" applies to more than just AI claims).
+  - ✅ Added no new `Module` rows this phase — Roles & Permissions, Users, Ownership
+    hub, and Workflows are all gated under the existing "Admin" module rather than
+    proliferating near-identical back-office permission modules.
+  - ✅ Tests: a role with only `VIEW` on Admin is rejected (403) editing a permission
+    matrix cell; a role with `EDIT` on Admin can change it (200); a user can't change
+    their own role (400); an admin can change another user's role (200).
+  - ⚠️ Known follow-up: the nav (`src/components/NavBar.tsx`) is now a flat list of
+    20 links across every module — the comment there has said a real sidebar/module
+    switcher (per the reference's app shell) is due once the module count "settles
+    down"; it has now settled (all 18 modules are built), so this is next up as a UI
+    polish pass, not a hypothetical one.
 
 Update this section as phases complete or reorder if a dependency assumption turns out
 wrong — treat it as a living plan, not a fixed contract.

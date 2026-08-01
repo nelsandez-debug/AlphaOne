@@ -4,6 +4,7 @@ import { prisma } from "@/lib/prisma";
 import { requirePageAccess } from "@/lib/page-guard";
 import { NoAccess } from "@/components/NoAccess";
 import { RecordDocumentsNotes } from "@/components/RecordDocumentsNotes";
+import { OwnershipField } from "@/components/OwnershipField";
 import { InvoiceDetailFields } from "@/components/InvoiceDetailFields";
 
 export default async function InvoiceDetailPage({ params }: { params: Promise<{ id: string }> }) {
@@ -20,9 +21,10 @@ export default async function InvoiceDetailPage({ params }: { params: Promise<{ 
   const variance = invoice.purchaseOrder ? invoice.amount - invoice.purchaseOrder.amount : null;
 
   const recordType = "invoice";
-  const [documents, notes] = await Promise.all([
+  const [documents, notes, ownership] = await Promise.all([
     prisma.document.findMany({ where: { recordType, recordId: id }, include: { uploadedBy: { select: { name: true } } }, orderBy: { createdAt: "desc" } }),
     prisma.note.findMany({ where: { recordType, recordId: id }, include: { author: { select: { name: true } } }, orderBy: { createdAt: "desc" } }),
+    prisma.ownership.findUnique({ where: { recordType_recordId: { recordType, recordId: id } }, include: { owner: { select: { id: true, name: true } } } }),
   ]);
 
   return (
@@ -34,6 +36,9 @@ export default async function InvoiceDetailPage({ params }: { params: Promise<{ 
         <h1 className="text-xl font-semibold text-slate-900">INV-{invoice.id.slice(-6).toUpperCase()} · ${invoice.amount.toLocaleString()}</h1>
         <div className="mt-2">
           <InvoiceDetailFields invoice={invoice} editable={access.editable} />
+        </div>
+        <div className="mt-2">
+          <OwnershipField moduleKey="invoices" recordType={recordType} recordId={id} initialOwner={ownership?.owner ?? null} editable={access.editable} />
         </div>
       </div>
 

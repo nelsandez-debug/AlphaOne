@@ -61,6 +61,7 @@ async function main() {
   await seedIntakeRequests();
   await seedTransactingData();
   await seedValueAndOversightData();
+  await seedWorkflowConfigs();
 }
 
 // A handful of Phase 1 sample records (loosely modeled on the reference prototype's
@@ -415,6 +416,29 @@ async function seedValueAndOversightData() {
   });
 
   console.log(`Seeded 3 budget categories, 2 projects (1 unlinked: ${facilitiesProject.id.slice(-6)}), 2 value tracking items, 2 risk flags.`);
+}
+
+// Phase 6 sample data — a modest, real settings registry (see the WorkflowConfig
+// model comment), not the reference's fabricated drag-and-drop no-code builder.
+async function seedWorkflowConfigs() {
+  const existing = await prisma.workflowConfig.count();
+  if (existing > 0) {
+    console.log("Sample WorkflowConfig data already present, skipping.");
+    return;
+  }
+
+  await prisma.workflowConfig.createMany({
+    data: [
+      { name: "Approval Workflows", description: "PO and contract approval chains.", category: "Approval", enabled: true },
+      { name: "Intake Forms", description: "Fields collected on the Intake submission form.", category: "Intake", enabled: true },
+      { name: "Risk Scoring Model", description: "Weights used by the Risk Management index.", category: "Risk", enabled: true },
+      { name: "Supplier Questionnaire", description: "Onboarding questionnaire sent to new suppliers.", category: "Suppliers", enabled: true },
+      { name: "Invoice Exception Rules", description: "Thresholds that flag an invoice as an exception.", category: "Invoices", enabled: true },
+      { name: "Notification Templates", description: "Email/notification copy for workflow events.", category: "Notifications", enabled: false },
+    ],
+  });
+
+  console.log("Seeded 6 workflow configs.");
 }
 
 main()

@@ -6,6 +6,7 @@ import { requirePageAccess } from "@/lib/page-guard";
 import { NoAccess } from "@/components/NoAccess";
 import { RelationshipCard } from "@/components/RelationshipCard";
 import { RecordDocumentsNotes } from "@/components/RecordDocumentsNotes";
+import { OwnershipField } from "@/components/OwnershipField";
 import { ProjectNameField, ProjectDetailFields } from "@/components/ProjectDetailFields";
 
 export default async function ProjectDetailPage({ params }: { params: Promise<{ id: string }> }) {
@@ -28,9 +29,10 @@ export default async function ProjectDetailPage({ params }: { params: Promise<{ 
   if (!project) notFound();
 
   const recordType = "project";
-  const [documents, notes] = await Promise.all([
+  const [documents, notes, ownership] = await Promise.all([
     prisma.document.findMany({ where: { recordType, recordId: id }, include: { uploadedBy: { select: { name: true } } }, orderBy: { createdAt: "desc" } }),
     prisma.note.findMany({ where: { recordType, recordId: id }, include: { author: { select: { name: true } } }, orderBy: { createdAt: "desc" } }),
+    prisma.ownership.findUnique({ where: { recordType_recordId: { recordType, recordId: id } }, include: { owner: { select: { id: true, name: true } } } }),
   ]);
 
   return (
@@ -48,8 +50,10 @@ export default async function ProjectDetailPage({ params }: { params: Promise<{ 
           )}
         </div>
         <ProjectNameField project={project} editable={access.editable} />
-        <div className="mt-2">
+        <div className="mt-2 flex flex-wrap items-center gap-4">
           <ProjectDetailFields project={project} editable={access.editable} />
+          <span className="text-slate-300">·</span>
+          <OwnershipField moduleKey="projects" recordType={recordType} recordId={id} initialOwner={ownership?.owner ?? null} editable={access.editable} />
         </div>
       </div>
 

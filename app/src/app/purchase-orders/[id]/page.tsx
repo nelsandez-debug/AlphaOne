@@ -4,6 +4,7 @@ import { prisma } from "@/lib/prisma";
 import { requirePageAccess } from "@/lib/page-guard";
 import { NoAccess } from "@/components/NoAccess";
 import { RecordDocumentsNotes } from "@/components/RecordDocumentsNotes";
+import { OwnershipField } from "@/components/OwnershipField";
 import { PODetailFields } from "@/components/PODetailFields";
 
 export default async function PurchaseOrderDetailPage({ params }: { params: Promise<{ id: string }> }) {
@@ -22,9 +23,10 @@ export default async function PurchaseOrderDetailPage({ params }: { params: Prom
   if (!order) notFound();
 
   const recordType = "purchase_order";
-  const [documents, notes] = await Promise.all([
+  const [documents, notes, ownership] = await Promise.all([
     prisma.document.findMany({ where: { recordType, recordId: id }, include: { uploadedBy: { select: { name: true } } }, orderBy: { createdAt: "desc" } }),
     prisma.note.findMany({ where: { recordType, recordId: id }, include: { author: { select: { name: true } } }, orderBy: { createdAt: "desc" } }),
+    prisma.ownership.findUnique({ where: { recordType_recordId: { recordType, recordId: id } }, include: { owner: { select: { id: true, name: true } } } }),
   ]);
 
   return (
@@ -46,8 +48,10 @@ export default async function PurchaseOrderDetailPage({ params }: { params: Prom
           )}
         </div>
         <h1 className="text-xl font-semibold text-slate-900">PO-{order.id.slice(-6).toUpperCase()}</h1>
-        <div className="mt-2">
+        <div className="mt-2 flex flex-wrap items-center gap-4">
           <PODetailFields order={order} editable={access.editable} />
+          <span className="text-slate-300">·</span>
+          <OwnershipField moduleKey="purchase-orders" recordType={recordType} recordId={id} initialOwner={ownership?.owner ?? null} editable={access.editable} />
         </div>
       </div>
 

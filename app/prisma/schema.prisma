@@ -615,3 +615,24 @@ model RiskFlag {
 
   @@index([supplierId])
 }
+
+// ---------------------------------------------------------------------------
+// Phase 6 — meta/no-code layer (Workflows, Configuration Studio, Administration)
+// ---------------------------------------------------------------------------
+
+// A modest, honest version of the reference's CONFIG_ITEMS: a real, persisted
+// on/off registry of named workflows, not a fabricated drag-and-drop no-code
+// builder. Toggling a row here does not yet change behavior elsewhere in the
+// app — there's no rules engine wired up to read these flags — so this is
+// scoped as a settings registry with a real audit trail, not a claim that it
+// drives real approval routing. Ownership/audit reuse the Phase 0 shared
+// systems (recordType "workflow_config"), same as every other module.
+model WorkflowConfig {
+  id          String   @id @default(cuid())
+  name        String   @unique
+  description String?
+  category    String?
+  enabled     Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
