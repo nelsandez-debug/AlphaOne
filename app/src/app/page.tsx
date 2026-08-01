@@ -1,26 +1,42 @@
-import { UserButton } from "@clerk/nextjs";
+import Link from "next/link";
+import { FileText, Layers, Truck } from "lucide-react";
 import { getCurrentUser } from "@/lib/current-user";
 
-// Phase 0 landing page: proves auth + the User/Role sync work end to end.
-// Module UI (Suppliers, Contracts, ...) starts in Phase 1.
+const MODULES = [
+  { href: "/suppliers", label: "Suppliers", icon: Truck, description: "Tier, risk, account ownership" },
+  { href: "/contracts", label: "Contracts", icon: FileText, description: "MSAs, NDAs, addenda, DPAs" },
+  { href: "/services", label: "Services", icon: Layers, description: "Governance and multi-category risk" },
+];
+
 export default async function Home() {
   const user = await getCurrentUser();
 
   return (
-    <div className="flex flex-1 flex-col items-center justify-center gap-6 bg-zinc-50 p-16 font-sans dark:bg-black">
-      <div className="flex items-center gap-4">
-        <UserButton />
-        {user && (
-          <div className="text-sm">
-            <p className="font-medium text-zinc-900 dark:text-zinc-50">{user.name}</p>
-            <p className="text-zinc-500 dark:text-zinc-400">{user.email} · {user.role}</p>
-          </div>
-        )}
+    <div className="mx-auto w-full max-w-3xl flex flex-1 flex-col gap-8 p-16">
+      {user && (
+        <p className="text-sm text-slate-500">
+          Signed in as <span className="font-medium text-slate-700">{user.name}</span> ({user.role})
+        </p>
+      )}
+      <div>
+        <h1 className="text-2xl font-semibold text-slate-900">Paradigm P2P</h1>
+        <p className="mt-1 text-sm text-slate-500">
+          Phase 1 core entities — everything else in the platform will reference these by real foreign key.
+        </p>
       </div>
-      <p className="max-w-md text-center text-sm text-zinc-500 dark:text-zinc-400">
-        Phase 0 foundation: auth, roles, and the shared documents / notes / audit_log
-        tables are live. Module UI starts in Phase 1.
-      </p>
+      <div className="grid gap-4 sm:grid-cols-3">
+        {MODULES.map((m) => (
+          <Link
+            key={m.href}
+            href={m.href}
+            className="rounded-xl border border-slate-200 bg-white p-5 hover:border-[#2563EB] hover:shadow-sm"
+          >
+            <m.icon size={18} className="text-slate-400" />
+            <p className="mt-3 text-sm font-medium text-slate-900">{m.label}</p>
+            <p className="mt-1 text-xs text-slate-500">{m.description}</p>
+          </Link>
+        ))}
+      </div>
     </div>
   );
 }
