@@ -1,72 +1,82 @@
-import Link from "next/link";
-import {
-  BarChart3,
-  Coins,
-  FileText,
-  Gavel,
-  Inbox,
-  Layers,
-  LineChart,
-  PieChart,
-  Receipt,
-  Settings,
-  Shield,
-  ShieldAlert,
-  ShieldCheck,
-  ShoppingCart,
-  TrendingUp,
-  Truck,
-} from "lucide-react";
 import { getCurrentUser } from "@/lib/current-user";
-
-const MODULES = [
-  { href: "/intake", label: "Intake", icon: Inbox, description: "The front door — submit and disposition requests" },
-  { href: "/suppliers", label: "Suppliers", icon: Truck, description: "Tier, risk, account ownership" },
-  { href: "/contracts", label: "Contracts", icon: FileText, description: "MSAs, NDAs, addenda, DPAs" },
-  { href: "/services", label: "Services", icon: Layers, description: "Governance and multi-category risk" },
-  { href: "/sourcing", label: "Sourcing", icon: Gavel, description: "RFx events with real per-supplier participation" },
-  { href: "/purchase-orders", label: "Purchase Orders", icon: ShoppingCart, description: "Issued against a supplier, contract, or intake request" },
-  { href: "/invoices", label: "Invoices", icon: Receipt, description: "PO matching, holds, and exceptions" },
-  { href: "/vendor-management", label: "Vendor Management", icon: ShieldCheck, description: "SLAs, business reviews, held-invoice rollups" },
-  { href: "/projects", label: "Projects", icon: TrendingUp, description: "Real links to contracts, services, POs, invoices" },
-  { href: "/value-tracking", label: "Value Tracking", icon: Coins, description: "Savings/avoidance items with a finance-approval workflow" },
-  { href: "/budget", label: "Budget", icon: BarChart3, description: "Allocated budget vs. live committed/spent" },
-  { href: "/forecast", label: "Forecast", icon: LineChart, description: "Actual spend by month plus a simple run-rate projection" },
-  { href: "/risk-management", label: "Risk Management", icon: ShieldAlert, description: "A live risk register, not a fabricated score" },
-  { href: "/analytics", label: "Analytics", icon: PieChart, description: "Real KPIs aggregated across every module" },
-  { href: "/workflows", label: "Workflows", icon: Settings, description: "A real, audited settings registry" },
-  { href: "/administration", label: "Administration", icon: Shield, description: "Roles & Permissions, Users, Ownership hub" },
-];
+import { computeAnalyticsSummary } from "@/lib/analytics";
+import { computeForecastSummary } from "@/lib/forecast";
+import { riskIndexColor } from "@/lib/labels";
+import { KpiCard } from "@/components/dashboard/KpiCard";
+import { SpendTrendChart } from "@/components/dashboard/SpendTrendChart";
+import { CategorySpendChart } from "@/components/dashboard/CategorySpendChart";
 
 export default async function Home() {
   const user = await getCurrentUser();
+  const [analytics, forecast] = await Promise.all([computeAnalyticsSummary(), computeForecastSummary()]);
+
+  const budgetUtilization = analytics.budgetAllocated > 0 ? (analytics.budgetUsed / analytics.budgetAllocated) * 100 : 0;
+  const valueTotal = analytics.realizedValue + analytics.pendingValue;
+  const valueRealizedShare = valueTotal > 0 ? (analytics.realizedValue / valueTotal) * 100 : 0;
+  const avgMonthlyRunRate = forecast.projectedAnnualRunRate / 12;
 
   return (
-    <div className="mx-auto w-full max-w-5xl flex flex-1 flex-col gap-8 p-16">
-      {user && (
-        <p className="text-sm text-slate-500">
-          Signed in as <span className="font-medium text-slate-700">{user.name}</span> ({user.role})
-        </p>
-      )}
+    <div className="mx-auto w-full max-w-6xl flex flex-1 flex-col gap-6 p-8">
       <div>
-        <h1 className="text-2xl font-semibold text-slate-900">Paradigm P2P</h1>
+        <h1 className="text-2xl font-semibold text-slate-900">Control Tower</h1>
         <p className="mt-1 text-sm text-slate-500">
-          Phases 0–6: every module built, all the way to the meta layer — Administration now
-          edits the same permission matrix every other page reads from, live.
+          {user ? `Welcome back, ${user.name}.` : "Welcome."} Every number below is a live aggregation over real
+          Supplier/Contract/Invoice/PO data — nothing here is a fabricated demo metric.
         </p>
       </div>
-      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-        {MODULES.map((m) => (
-          <Link
-            key={m.href}
-            href={m.href}
-            className="rounded-xl border border-slate-200 bg-white p-5 hover:border-[#2563EB] hover:shadow-sm"
-          >
-            <m.icon size={18} className="text-slate-400" />
-            <p className="mt-3 text-sm font-medium text-slate-900">{m.label}</p>
-            <p className="mt-1 text-xs text-slate-500">{m.description}</p>
-          </Link>
-        ))}
+
+      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+        <KpiCard
+          label="Total spend"
+          value={`$${analytics.totalSpend.toLocaleString()}`}
+          sublabel={`${Math.round(budgetUtilization)}% of $${analytics.budgetAllocated.toLocaleString()} allocated budget`}
+          progress={budgetUtilization}
+        />
+        <KpiCard
+          label="Touchless invoice rate"
+          value={`${analytics.touchlessInvoiceRate}%`}
+          sublabel="Share of invoices matched with no manual review"
+          progress={analytics.touchlessInvoiceRate}
+        />
+        <KpiCard
+          label="Value tracked"
+          value={`$${analytics.realizedValue.toLocaleString()}`}
+          sublabel={`$${analytics.pendingValue.toLocaleString()} pending finance approval`}
+          progress={valueRealizedShare}
+        />
+        <KpiCard
+          label="Open risk flags"
+          value={String(analytics.openRiskFlags)}
+          sublabel={`Risk index ${analytics.riskIndex}/100 (weighted heuristic, not a prediction)`}
+          progress={analytics.riskIndex}
+          progressColor={riskIndexColor(analytics.riskIndex)}
+        />
+      </div>
+
+      <div className="grid gap-4 lg:grid-cols-2">
+        <div className="rounded-xl border border-slate-200 bg-white p-5">
+          <h2 className="text-sm font-semibold text-slate-900">Monthly spend</h2>
+          <p className="text-xs text-slate-500">Actual invoiced spend by month, vs. the average monthly run-rate</p>
+          <div className="mt-4">
+            {forecast.monthly.length > 0 ? (
+              <SpendTrendChart monthly={forecast.monthly} avgMonthlyRunRate={avgMonthlyRunRate} />
+            ) : (
+              <p className="py-12 text-center text-sm text-slate-400">No dated invoices yet</p>
+            )}
+          </div>
+        </div>
+
+        <div className="rounded-xl border border-slate-200 bg-white p-5">
+          <h2 className="text-sm font-semibold text-slate-900">Spend by category</h2>
+          <p className="text-xs text-slate-500">Total invoiced spend, grouped by supplier category</p>
+          <div className="mt-4">
+            {analytics.categorySpend.length > 0 ? (
+              <CategorySpendChart categorySpend={analytics.categorySpend} />
+            ) : (
+              <p className="py-12 text-center text-sm text-slate-400">No invoiced spend yet</p>
+            )}
+          </div>
+        </div>
       </div>
     </div>
   );

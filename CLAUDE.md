@@ -178,11 +178,26 @@ demoable/testable at the end of each phase, even before the full suite is live.
   - ✅ Tests: a role with only `VIEW` on Admin is rejected (403) editing a permission
     matrix cell; a role with `EDIT` on Admin can change it (200); a user can't change
     their own role (400); an admin can change another user's role (200).
-  - ⚠️ Known follow-up: the nav (`src/components/NavBar.tsx`) is now a flat list of
-    20 links across every module — the comment there has said a real sidebar/module
-    switcher (per the reference's app shell) is due once the module count "settles
-    down"; it has now settled (all 18 modules are built), so this is next up as a UI
-    polish pass, not a hypothetical one.
+  - ✅ Known follow-up resolved: the flat `NavBar` (20 links) is replaced by a real
+    sidebar app shell (`src/components/AppShell.tsx` + `Sidebar.tsx` + `TopBar.tsx`),
+    styled from the user's Claude Design mockup ("P2P V1 UI concept") — a dark
+    `#0B1220` sidebar grouped into Overview/Source to pay/Insights/Admin sections,
+    active-route highlighting, and each item gated by the same `canView` permission
+    check every page already re-checks server-side (a signed-out visitor — reachable
+    only at `/sign-in`/`/sign-up` per `src/proxy.ts` — gets no sidebar at all, not an
+    empty one).
+  - ✅ Home (`src/app/page.tsx`) is now a real "Control Tower" dashboard, not a grid of
+    module tiles: 4 KPI cards and 2 charts (`src/components/dashboard/`), every number
+    a live aggregation over `computeAnalyticsSummary`/`computeForecastSummary` — no
+    number on this page is a fabricated demo metric (principle 4). Two mockup ideas
+    were deliberately not ported as-is because the `dataviz` skill's methodology flags
+    them: a "Procurement automation" KPI wasn't kept (nothing in this codebase computes
+    that honestly), and "Spend by category" is a sorted single-hue horizontal bar
+    instead of the mockup's donut, since a donut/pie is a documented anti-pattern for
+    comparing close values — the bar reads more accurately and is still part-to-whole
+    at a glance. Chart colors are the `dataviz` skill's validated reference palette
+    (categorical slot 1 blue, status colors reserved for the risk-index bar), confirmed
+    colorblind-safe via `scripts/validate_palette.js` rather than eyeballed.
 
 Update this section as phases complete or reorder if a dependency assumption turns out
 wrong — treat it as a living plan, not a fixed contract.

@@ -257,6 +257,21 @@ export function toOptions<T extends string>(labels: Record<T, string>): { value:
   return (Object.keys(labels) as T[]).map((value) => ({ value, label: labels[value] }));
 }
 
+// Status palette (good/warning/serious/critical) reserved for state indicators —
+// never reused as a categorical series color (dataviz skill non-negotiable).
+export function riskIndexColor(index: number): string {
+  if (index >= 75) return "#d03b3b"; // critical
+  if (index >= 50) return "#ec835a"; // serious
+  if (index >= 25) return "#fab219"; // warning
+  return "#0ca30c"; // good
+}
+
+export function formatCompactCurrency(amount: number): string {
+  if (Math.abs(amount) >= 1_000_000) return `$${(amount / 1_000_000).toFixed(1)}M`;
+  if (Math.abs(amount) >= 1_000) return `$${(amount / 1_000).toFixed(0)}K`;
+  return `$${amount.toLocaleString()}`;
+}
+
 export function riskBadgeClass(level: RiskLevel | null | undefined): string {
   switch (level) {
     case "HIGH":
