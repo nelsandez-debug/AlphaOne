@@ -1,0 +1,18 @@
+diff --git a/node_modules/pg-cloudflare/package.json b/node_modules/pg-cloudflare/package.json
+index 8081b54..4341e9a 100644
+--- a/node_modules/pg-cloudflare/package.json
++++ b/node_modules/pg-cloudflare/package.json
+@@ -11,11 +11,8 @@
+   },
+   "exports": {
+     ".": {
+-      "workerd": {
+-        "import": "./esm/index.mjs",
+-        "require": "./dist/index.js"
+-      },
+-      "default": "./dist/empty.js"
++      "import": "./esm/index.mjs",
++      "require": "./dist/index.js"
+     },
+     "./package.json": "./package.json"
+   },
