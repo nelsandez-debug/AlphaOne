@@ -1,5 +1,7 @@
 import "server-only";
-import { auth, clerkClient } from "@clerk/nextjs/server";
+import { headers } from "next/headers";
+import { NextRequest } from "next/server";
+import { clerkClient } from "@clerk/nextjs/server";
 import { prisma } from "@/lib/prisma";
 import { Role, type User } from "@/generated/prisma/client";
 
@@ -15,13 +17,21 @@ function isRole(value: unknown): value is Role {
 // session, so every document/note/audit-log FK points at a real user, not a
 // bare Clerk ID string.
 export async function getCurrentUser(): Promise<User | null> {
-  const { userId } = await auth();
+  // Clerk's `auth()` helper hard-requires clerkMiddleware() to have run (it
+  // asserts on a request header middleware injects). Next 16's proxy.ts is
+  // Node-runtime-only and incompatible with OpenNext-Cloudflare (see
+  // CLAUDE.md), so there is no middleware to inject it. authenticateRequest()
+  // is the same primitive clerkMiddleware() calls internally, just invoked
+  // directly here instead, with no middleware dependency.
+  const client = await clerkClient();
+  const request = new NextRequest("https://placeholder.local", { headers: await headers() });
+  const requestState = await client.authenticateRequest(request);
+  const userId = requestState.toAuth()?.userId;
   if (!userId) return null;
 
   const existing = await prisma.user.findUnique({ where: { clerkId: userId } });
   if (existing) return existing;
 
-  const client = await clerkClient();
   const clerkUser = await client.users.getUser(userId);
   const role = isRole(clerkUser.publicMetadata?.role) ? (clerkUser.publicMetadata.role as Role) : DEFAULT_ROLE;
   const email = clerkUser.emailAddresses[0]?.emailAddress ?? `${userId}@unknown.local`;
