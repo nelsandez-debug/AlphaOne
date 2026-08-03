@@ -205,9 +205,39 @@ demoable/testable at the end of each phase, even before the full suite is live.
     at a glance. Chart colors are the `dataviz` skill's validated reference palette
     (categorical slot 1 blue, status colors reserved for the risk-index bar), confirmed
     colorblind-safe via `scripts/validate_palette.js` rather than eyeballed.
-
-Update this section as phases complete or reorder if a dependency assumption turns out
-wrong — treat it as a living plan, not a fixed contract.
+  - ✅ **"P2P V2" visual restyle** — replaced the dark `#0B1220` sidebar/flat-white shell
+    from the previous mockup with the "P2P V2" Claude Design handoff's light glassmorphism
+    system: frosted `.glass` cards, pill-shaped buttons/inputs/badges, Barlow/Barlow
+    Condensed type, and a steel-blue accent ramp (`src/app/globals.css`'s `--accent-*`/
+    `--neutral-*` tokens). Applied across the whole app — shell, Control Tower, every
+    list/detail page, and shared components (`RelationshipCard`, `RecordDocumentsNotes`,
+    `EditableText`/`EditableSelect`, etc.) — not just the shell, per principle 6. Per
+    explicit user direction this pass is **styling only**: nav labels were renamed to
+    match the handoff (Sourcing → RFx, Intake → Requisitions) and a new "Guided Buying"
+    nav item/page was added, but hrefs, `moduleKey`s, and the schema are unchanged —
+    real Guided Buying schema/permissions and any Sourcing/Intake renaming at the
+    route/data level are deferred to a follow-up pass.
+  - ✅ Found and fixed a real, pre-existing bug while wiring up the new shell (unrelated
+    to the restyle itself): this Next.js version's RSC boundary rejects passing a raw
+    `LucideIcon` component reference as a prop from a Server Component to a `"use client"`
+    one ("Only plain objects can be passed to Client Components..."), which meant the
+    entire signed-in sidebar/topbar shell was silently unrenderable for any real
+    authenticated user. Fixed by rendering each nav icon into a plain `ReactNode` in
+    `AppShell.tsx` (server-side) before it crosses into `Sidebar.tsx` — see
+    `RenderedNavItem`/`RenderedNavSection` in `Sidebar.tsx`.
+  - ⚠️ **Found, partially fixed, still open:** the Vitest suite's `@clerk/nextjs/server`
+    mocks predate the Phase 1 `getCurrentUser()` rewrite (`auth()` → `clerkClient().
+    authenticateRequest()` — see the Hosting section) and only mocked `auth`, not
+    `clerkClient` — every test failed with "No `clerkClient` export is defined on the
+    mock." Fixed the mock shape itself (all 10 `route.test.ts` files now mock
+    `clerkClient().authenticateRequest()` instead of bare `auth()`), but a second,
+    deeper issue surfaced once that was fixed: `getCurrentUser()` calls `next/headers`'s
+    `headers()`, which throws ("called outside a request scope") when a route handler
+    is invoked directly in Vitest rather than through Next's real request pipeline.
+    Properly fixing this means threading the request/headers through
+    `getCurrentUser`/`requireUser`/`requirePermission`/`api-guard` explicitly instead of
+    relying on ambient `next/headers` — real, separate scope from this styling pass, not
+    attempted here.
 
 ## Tech stack
 

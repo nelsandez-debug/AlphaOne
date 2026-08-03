@@ -13,7 +13,7 @@ export function UserRoleField({ id, role, editable }: { id: string; role: Role; 
       value={role}
       editable={editable}
       options={toOptions(ROLE_LABELS)}
-      renderValue={(v) => <span className="rounded-full border border-slate-200 bg-slate-50 px-2 py-0.5 text-xs">{ROLE_LABELS[v as Role]}</span>}
+      renderValue={(v) => <span className="rounded-full border border-neutral-200 bg-neutral-100 px-2 py-0.5 text-xs">{ROLE_LABELS[v as Role]}</span>}
       onSave={async (newRole) => {
         const response = await fetch(`/api/administration/users/${id}`, {
           method: "PATCH",

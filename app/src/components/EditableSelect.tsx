@@ -39,7 +39,7 @@ export function EditableSelect({
           setEditing(false);
         }}
         onBlur={() => setEditing(false)}
-        className="rounded border border-[#2563EB] px-1.5 py-0.5 text-xs outline-none bg-white"
+        className="rounded border border-accent-500 px-1.5 py-0.5 text-xs outline-none bg-white"
       >
         {allowClear && <option value="">{clearLabel}</option>}
         {options.map((o) => (

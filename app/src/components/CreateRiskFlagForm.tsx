@@ -20,7 +20,7 @@ export function CreateRiskFlagForm({ suppliers }: { suppliers: { id: string; nam
         type="button"
         onClick={() => setOpen(true)}
         disabled={suppliers.length === 0}
-        className="inline-flex items-center gap-1.5 text-xs font-medium text-white bg-[#0B1220] hover:bg-slate-800 disabled:bg-slate-300 rounded-lg px-3 py-1.5"
+        className="inline-flex items-center gap-1.5 text-xs font-medium text-white bg-accent-600 hover:bg-accent-700 disabled:bg-neutral-300 rounded-full px-3 py-1.5"
       >
         <Plus size={13} /> Flag a risk
       </button>
@@ -46,23 +46,23 @@ export function CreateRiskFlagForm({ suppliers }: { suppliers: { id: string; nam
   };
 
   return (
-    <form onSubmit={submit} className="flex flex-wrap items-center gap-2 rounded-lg border border-slate-200 bg-white p-3">
-      <select value={supplierId} onChange={(e) => setSupplierId(e.target.value)} className="rounded border border-slate-200 px-2 py-1 text-xs">
+    <form onSubmit={submit} className="flex flex-wrap items-center gap-2 glass p-3">
+      <select value={supplierId} onChange={(e) => setSupplierId(e.target.value)} className="rounded border border-neutral-200 px-2 py-1 text-xs">
         {suppliers.map((s) => (
           <option key={s.id} value={s.id}>{s.name}</option>
         ))}
       </select>
-      <input value={type} onChange={(e) => setType(e.target.value)} placeholder="Type (Compliance, Financial, ...)" className="rounded border border-slate-200 px-2 py-1 text-xs w-48" />
-      <select value={severity} onChange={(e) => setSeverity(e.target.value as typeof severity)} className="rounded border border-slate-200 px-2 py-1 text-xs">
+      <input value={type} onChange={(e) => setType(e.target.value)} placeholder="Type (Compliance, Financial, ...)" className="rounded border border-neutral-200 px-2 py-1 text-xs w-48" />
+      <select value={severity} onChange={(e) => setSeverity(e.target.value as typeof severity)} className="rounded border border-neutral-200 px-2 py-1 text-xs">
         {toOptions(RISK_LEVEL_LABELS).map((o) => (
           <option key={o.value} value={o.value}>{o.label}</option>
         ))}
       </select>
-      <input value={detail} onChange={(e) => setDetail(e.target.value)} placeholder="Detail" className="rounded border border-slate-200 px-2 py-1 text-xs flex-1 min-w-48" />
+      <input value={detail} onChange={(e) => setDetail(e.target.value)} placeholder="Detail" className="rounded border border-neutral-200 px-2 py-1 text-xs flex-1 min-w-48" />
       <button
         type="submit"
         disabled={submitting || !type.trim() || !detail.trim()}
-        className="text-xs font-medium rounded-lg px-3 py-1.5 text-white bg-[#0B1220] hover:bg-slate-800 disabled:bg-slate-300"
+        className="text-xs font-medium rounded-full px-3 py-1.5 text-white bg-accent-600 hover:bg-accent-700 disabled:bg-neutral-300"
       >
         Flag
       </button>

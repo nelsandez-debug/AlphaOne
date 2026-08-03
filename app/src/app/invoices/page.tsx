@@ -31,14 +31,14 @@ export default async function InvoicesPage({ searchParams }: { searchParams: Pro
             {onHold === "true" && (
               <>
                 {" "}on hold ·{" "}
-                <Link href="/invoices" className="text-[#2563EB] hover:underline">clear filter</Link>
+                <Link href="/invoices" className="text-accent-700 hover:underline">clear filter</Link>
               </>
             )}
             {filteredProject && (
               <>
                 {" "}for <span className="font-medium text-slate-700">{filteredProject.name}</span>
                 {" · "}
-                <Link href="/invoices" className="text-[#2563EB] hover:underline">clear filter</Link>
+                <Link href="/invoices" className="text-accent-700 hover:underline">clear filter</Link>
               </>
             )}
           </p>
@@ -46,7 +46,7 @@ export default async function InvoicesPage({ searchParams }: { searchParams: Pro
         {access.editable && <CreateInvoiceForm suppliers={suppliers} purchaseOrders={purchaseOrders} defaultSupplierId={supplierId} />}
       </div>
 
-      <div className="rounded-xl border border-slate-200 bg-white overflow-hidden">
+      <div className="glass overflow-hidden">
         <table className="w-full text-sm">
           <thead>
             <tr className="border-b border-slate-100 text-left text-xs uppercase tracking-wide text-slate-400">
@@ -60,18 +60,18 @@ export default async function InvoicesPage({ searchParams }: { searchParams: Pro
           </thead>
           <tbody>
             {invoices.map((i) => (
-              <tr key={i.id} className="border-b border-slate-50 last:border-0 hover:bg-slate-50">
+              <tr key={i.id} className="border-b border-slate-50 last:border-0 hover:bg-neutral-100">
                 <td className="px-4 py-2.5">
-                  <Link href={`/invoices/${i.id}`} className="font-medium text-slate-900 hover:text-[#2563EB]">
+                  <Link href={`/invoices/${i.id}`} className="font-medium text-slate-900 hover:text-accent-700">
                     INV-{i.id.slice(-6).toUpperCase()}
                   </Link>
                 </td>
                 <td className="px-4 py-2.5">
-                  <Link href={`/suppliers/${i.supplier.id}`} className="text-slate-600 hover:text-[#2563EB]">{i.supplier.name}</Link>
+                  <Link href={`/suppliers/${i.supplier.id}`} className="text-slate-600 hover:text-accent-700">{i.supplier.name}</Link>
                 </td>
                 <td className="px-4 py-2.5">
                   {i.purchaseOrder ? (
-                    <Link href={`/purchase-orders/${i.purchaseOrder.id}`} className="text-slate-600 hover:text-[#2563EB]">
+                    <Link href={`/purchase-orders/${i.purchaseOrder.id}`} className="text-slate-600 hover:text-accent-700">
                       PO-{i.purchaseOrder.id.slice(-6).toUpperCase()}
                     </Link>
                   ) : (

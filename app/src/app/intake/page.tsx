@@ -30,14 +30,14 @@ export default async function IntakePage({ searchParams }: { searchParams: Promi
       </div>
 
       <div className="flex items-center gap-2 mb-4 text-xs">
-        <Link href="/intake" className={`rounded-full border px-3 py-1 ${!stage ? "border-slate-900 text-slate-900 font-medium" : "border-slate-200 text-slate-500"}`}>
+        <Link href="/intake" className={`rounded-full border px-3 py-1 ${!stage ? "border-slate-900 text-slate-900 font-medium" : "border-neutral-200 text-slate-500"}`}>
           All
         </Link>
         {STAGES.map((s) => (
           <Link
             key={s}
             href={`/intake?stage=${s}`}
-            className={`rounded-full border px-3 py-1 flex items-center gap-1.5 ${stage === s ? "border-slate-900 text-slate-900 font-medium" : "border-slate-200 text-slate-500"}`}
+            className={`rounded-full border px-3 py-1 flex items-center gap-1.5 ${stage === s ? "border-slate-900 text-slate-900 font-medium" : "border-neutral-200 text-slate-500"}`}
           >
             <span className={`h-1.5 w-1.5 rounded-full ${stageDotClass(s)}`} />
             {INTAKE_STAGE_LABELS[s]}
@@ -45,7 +45,7 @@ export default async function IntakePage({ searchParams }: { searchParams: Promi
         ))}
       </div>
 
-      <div className="rounded-xl border border-slate-200 bg-white overflow-hidden">
+      <div className="glass overflow-hidden">
         <table className="w-full text-sm">
           <thead>
             <tr className="border-b border-slate-100 text-left text-xs uppercase tracking-wide text-slate-400">
@@ -57,9 +57,9 @@ export default async function IntakePage({ searchParams }: { searchParams: Promi
           </thead>
           <tbody>
             {requests.map((r) => (
-              <tr key={r.id} className="border-b border-slate-50 last:border-0 hover:bg-slate-50">
+              <tr key={r.id} className="border-b border-slate-50 last:border-0 hover:bg-neutral-100">
                 <td className="px-4 py-2.5">
-                  <Link href={`/intake/${r.id}`} className="font-medium text-slate-900 hover:text-[#2563EB]">
+                  <Link href={`/intake/${r.id}`} className="font-medium text-slate-900 hover:text-accent-700">
                     {r.title}
                   </Link>
                 </td>

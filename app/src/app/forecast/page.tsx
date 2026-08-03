@@ -19,21 +19,21 @@ export default async function ForecastPage() {
       </div>
 
       <div className="grid gap-4 sm:grid-cols-3">
-        <div className="rounded-xl border border-slate-200 bg-white p-5">
+        <div className="glass p-5">
           <p className="text-xs text-slate-500">Spend to date</p>
           <p className="mt-1 text-xl font-semibold text-slate-900">${summary.totalToDate.toLocaleString()}</p>
         </div>
-        <div className="rounded-xl border border-slate-200 bg-white p-5">
+        <div className="glass p-5">
           <p className="text-xs text-slate-500">Months with invoice data</p>
           <p className="mt-1 text-xl font-semibold text-slate-900">{summary.monthsWithData}</p>
         </div>
-        <div className="rounded-xl border border-slate-200 bg-white p-5">
+        <div className="glass p-5">
           <p className="text-xs text-slate-500">Projected annual run rate</p>
           <p className="mt-1 text-xl font-semibold text-slate-900">${summary.projectedAnnualRunRate.toLocaleString()}</p>
         </div>
       </div>
 
-      <div className="rounded-xl border border-slate-200 bg-white overflow-hidden">
+      <div className="glass overflow-hidden">
         <table className="w-full text-sm">
           <thead>
             <tr className="border-b border-slate-100 text-left text-xs uppercase tracking-wide text-slate-400">

@@ -44,7 +44,7 @@ export function SourcingDetailFields({ event, editable }: { event: SourcingEvent
         value={event.stage}
         editable={editable}
         options={toOptions(SOURCING_STAGE_LABELS)}
-        renderValue={(v) => <span className="rounded-full border border-slate-200 bg-slate-50 px-2 py-0.5 text-xs">{SOURCING_STAGE_LABELS[v as keyof typeof SOURCING_STAGE_LABELS]}</span>}
+        renderValue={(v) => <span className="rounded-full border border-neutral-200 bg-neutral-100 px-2 py-0.5 text-xs">{SOURCING_STAGE_LABELS[v as keyof typeof SOURCING_STAGE_LABELS]}</span>}
         onSave={(stage) => patch({ stage })}
       />
       <span className="text-xs text-slate-400">Est. savings</span>

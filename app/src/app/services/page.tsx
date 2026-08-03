@@ -42,7 +42,7 @@ export default async function ServicesPage({
                 {" "}
                 for <span className="font-medium text-slate-700">{filterLabel}</span>
                 {" · "}
-                <Link href="/services" className="text-[#2563EB] hover:underline">
+                <Link href="/services" className="text-accent-700 hover:underline">
                   clear filter
                 </Link>
               </>
@@ -54,7 +54,7 @@ export default async function ServicesPage({
         )}
       </div>
 
-      <div className="rounded-xl border border-slate-200 bg-white overflow-hidden">
+      <div className="glass overflow-hidden">
         <table className="w-full text-sm">
           <thead>
             <tr className="border-b border-slate-100 text-left text-xs uppercase tracking-wide text-slate-400">
@@ -67,20 +67,20 @@ export default async function ServicesPage({
           </thead>
           <tbody>
             {services.map((s) => (
-              <tr key={s.id} className="border-b border-slate-50 last:border-0 hover:bg-slate-50">
+              <tr key={s.id} className="border-b border-slate-50 last:border-0 hover:bg-neutral-100">
                 <td className="px-4 py-2.5">
-                  <Link href={`/services/${s.id}`} className="font-medium text-slate-900 hover:text-[#2563EB]">
+                  <Link href={`/services/${s.id}`} className="font-medium text-slate-900 hover:text-accent-700">
                     {s.name}
                   </Link>
                 </td>
                 <td className="px-4 py-2.5">
-                  <Link href={`/suppliers/${s.supplier.id}`} className="text-slate-600 hover:text-[#2563EB]">
+                  <Link href={`/suppliers/${s.supplier.id}`} className="text-slate-600 hover:text-accent-700">
                     {s.supplier.name}
                   </Link>
                 </td>
                 <td className="px-4 py-2.5">
                   {s.contract ? (
-                    <Link href={`/contracts/${s.contract.id}`} className="text-slate-600 hover:text-[#2563EB]">
+                    <Link href={`/contracts/${s.contract.id}`} className="text-slate-600 hover:text-accent-700">
                       {s.contract.name}
                     </Link>
                   ) : (

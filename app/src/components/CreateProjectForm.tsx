@@ -24,7 +24,7 @@ export function CreateProjectForm({
       <button
         type="button"
         onClick={() => setOpen(true)}
-        className="inline-flex items-center gap-1.5 text-xs font-medium text-white bg-[#0B1220] hover:bg-slate-800 rounded-lg px-3 py-1.5"
+        className="inline-flex items-center gap-1.5 text-xs font-medium text-white bg-accent-600 hover:bg-accent-700 rounded-full px-3 py-1.5"
       >
         <Plus size={13} /> New project
       </button>
@@ -53,21 +53,21 @@ export function CreateProjectForm({
   };
 
   return (
-    <form onSubmit={submit} className="flex flex-wrap items-center gap-2 rounded-lg border border-slate-200 bg-white p-3">
+    <form onSubmit={submit} className="flex flex-wrap items-center gap-2 glass p-3">
       <input
         autoFocus
         value={name}
         onChange={(e) => setName(e.target.value)}
         placeholder="Project name"
-        className="rounded border border-slate-200 px-2 py-1 text-xs outline-none focus:border-[#2563EB]"
+        className="rounded border border-neutral-200 px-2 py-1 text-xs outline-none focus:border-accent-500"
       />
-      <select value={supplierId} onChange={(e) => setSupplierId(e.target.value)} className="rounded border border-slate-200 px-2 py-1 text-xs">
+      <select value={supplierId} onChange={(e) => setSupplierId(e.target.value)} className="rounded border border-neutral-200 px-2 py-1 text-xs">
         <option value="">No supplier</option>
         {suppliers.map((s) => (
           <option key={s.id} value={s.id}>{s.name}</option>
         ))}
       </select>
-      <select value={budgetCategoryId} onChange={(e) => setBudgetCategoryId(e.target.value)} className="rounded border border-slate-200 px-2 py-1 text-xs">
+      <select value={budgetCategoryId} onChange={(e) => setBudgetCategoryId(e.target.value)} className="rounded border border-neutral-200 px-2 py-1 text-xs">
         <option value="">No budget category</option>
         {budgetCategories.map((b) => (
           <option key={b.id} value={b.id}>{b.category}</option>
@@ -78,12 +78,12 @@ export function CreateProjectForm({
         onChange={(e) => setBudgetAmount(e.target.value)}
         placeholder="Budget ($)"
         type="number"
-        className="rounded border border-slate-200 px-2 py-1 text-xs w-28 outline-none focus:border-[#2563EB]"
+        className="rounded border border-neutral-200 px-2 py-1 text-xs w-28 outline-none focus:border-accent-500"
       />
       <button
         type="submit"
         disabled={submitting || !name.trim()}
-        className="text-xs font-medium rounded-lg px-3 py-1.5 text-white bg-[#0B1220] hover:bg-slate-800 disabled:bg-slate-300"
+        className="text-xs font-medium rounded-full px-3 py-1.5 text-white bg-accent-600 hover:bg-accent-700 disabled:bg-neutral-300"
       >
         Create
       </button>

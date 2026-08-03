@@ -33,7 +33,7 @@ export default async function ContractDetailPage({ params }: { params: Promise<{
   return (
     <div className="mx-auto w-full max-w-4xl space-y-6 p-8">
       <div>
-        <Link href={`/suppliers/${contract.supplier.id}`} className="text-xs font-medium text-[#2563EB] hover:underline">
+        <Link href={`/suppliers/${contract.supplier.id}`} className="text-xs font-medium text-accent-700 hover:underline">
           {contract.supplier.name}
         </Link>
         <ContractNameField contract={contract} editable={access.editable} />
@@ -53,7 +53,7 @@ export default async function ContractDetailPage({ params }: { params: Promise<{
       <RelationshipCard icon={Layers} title="Services governed" count={contract.services.length} href={`/services?contractId=${id}`}>
         <div className="space-y-2">
           {contract.services.map((s) => (
-            <Link key={s.id} href={`/services/${s.id}`} className="block rounded-lg bg-slate-50 border border-slate-200 px-3 py-2 hover:border-[#2563EB]">
+            <Link key={s.id} href={`/services/${s.id}`} className="block rounded-lg bg-neutral-100 border border-neutral-200 px-3 py-2 hover:border-accent-500">
               <p className="text-xs font-medium text-slate-700">{s.name}</p>
               <p className="text-[11px] text-slate-400">{s.category}</p>
             </Link>

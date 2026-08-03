@@ -73,13 +73,13 @@ export function RecordDocumentsNotes({
 
   return (
     <div className="grid md:grid-cols-2 gap-5">
-      <div className="rounded-xl border border-slate-200 bg-white p-5">
+      <div className="glass p-5">
         <div className="flex items-center justify-between mb-3">
           <p className="text-xs font-semibold uppercase tracking-wide text-slate-400 flex items-center gap-1.5">
             <FolderOpen size={14} className="text-slate-400" /> Document repository
           </p>
           {editable && (
-            <label className="text-xs font-medium text-[#2563EB] hover:underline cursor-pointer flex items-center gap-1">
+            <label className="text-xs font-medium text-accent-700 hover:underline cursor-pointer flex items-center gap-1">
               <Upload size={12} /> Add
               <input type="file" className="hidden" onChange={addDoc} />
             </label>
@@ -90,7 +90,7 @@ export function RecordDocumentsNotes({
         ) : (
           <div className="space-y-2">
             {documents.map((d) => (
-              <div key={d.id} className="flex items-center gap-2 rounded-lg bg-slate-50 border border-slate-200 px-3 py-2">
+              <div key={d.id} className="flex items-center gap-2 rounded-lg bg-neutral-100 border border-neutral-200 px-3 py-2">
                 <FileCheck2 size={13} className="text-slate-400 shrink-0" />
                 <div className="min-w-0">
                   <p className="text-xs font-medium text-slate-700 truncate">{d.name}</p>
@@ -105,7 +105,7 @@ export function RecordDocumentsNotes({
         )}
       </div>
 
-      <div className="rounded-xl border border-slate-200 bg-white p-5">
+      <div className="glass p-5">
         <p className="text-xs font-semibold uppercase tracking-wide text-slate-400 mb-3 flex items-center gap-1.5">
           <MessageSquare size={14} className="text-slate-400" /> Notes
         </p>
@@ -116,13 +116,13 @@ export function RecordDocumentsNotes({
               onChange={(e) => setNoteText(e.target.value)}
               rows={2}
               placeholder="Add a note for the next person who opens this record…"
-              className="w-full rounded-lg border border-slate-200 px-3 py-2 text-xs outline-none focus:border-[#2563EB] resize-none mb-2"
+              className="w-full rounded-lg border border-neutral-200 px-3 py-2 text-xs outline-none focus:border-accent-500 resize-none mb-2"
             />
             <button
               type="button"
               onClick={submitNote}
               disabled={!noteText.trim()}
-              className={`text-xs font-medium rounded-lg px-3 py-1.5 text-white ${noteText.trim() ? "bg-[#0B1220] hover:bg-slate-800" : "bg-slate-300 cursor-not-allowed"}`}
+              className={`text-xs font-medium rounded-full px-3 py-1.5 text-white ${noteText.trim() ? "bg-accent-600 hover:bg-accent-700" : "bg-neutral-300 cursor-not-allowed"}`}
             >
               Add note
             </button>

@@ -33,7 +33,7 @@ export function CreateServiceForm({
         type="button"
         onClick={() => setOpen(true)}
         disabled={suppliers.length === 0}
-        className="inline-flex items-center gap-1.5 text-xs font-medium text-white bg-[#0B1220] hover:bg-slate-800 disabled:bg-slate-300 rounded-lg px-3 py-1.5"
+        className="inline-flex items-center gap-1.5 text-xs font-medium text-white bg-accent-600 hover:bg-accent-700 disabled:bg-neutral-300 rounded-full px-3 py-1.5"
       >
         <Plus size={13} /> New service
       </button>
@@ -59,14 +59,14 @@ export function CreateServiceForm({
   };
 
   return (
-    <form onSubmit={submit} className="flex flex-wrap items-center gap-2 rounded-lg border border-slate-200 bg-white p-3">
+    <form onSubmit={submit} className="flex flex-wrap items-center gap-2 glass p-3">
       <select
         value={supplierId}
         onChange={(e) => {
           setSupplierId(e.target.value);
           setContractId("");
         }}
-        className="rounded border border-slate-200 px-2 py-1 text-xs"
+        className="rounded border border-neutral-200 px-2 py-1 text-xs"
       >
         {suppliers.map((s) => (
           <option key={s.id} value={s.id}>
@@ -74,7 +74,7 @@ export function CreateServiceForm({
           </option>
         ))}
       </select>
-      <select value={contractId} onChange={(e) => setContractId(e.target.value)} className="rounded border border-slate-200 px-2 py-1 text-xs">
+      <select value={contractId} onChange={(e) => setContractId(e.target.value)} className="rounded border border-neutral-200 px-2 py-1 text-xs">
         <option value="">No governing contract yet</option>
         {contractOptions.map((c) => (
           <option key={c.id} value={c.id}>
@@ -87,15 +87,15 @@ export function CreateServiceForm({
         value={name}
         onChange={(e) => setName(e.target.value)}
         placeholder="Service name"
-        className="rounded border border-slate-200 px-2 py-1 text-xs outline-none focus:border-[#2563EB]"
+        className="rounded border border-neutral-200 px-2 py-1 text-xs outline-none focus:border-accent-500"
       />
       <input
         value={category}
         onChange={(e) => setCategory(e.target.value)}
         placeholder="Category"
-        className="rounded border border-slate-200 px-2 py-1 text-xs outline-none focus:border-[#2563EB]"
+        className="rounded border border-neutral-200 px-2 py-1 text-xs outline-none focus:border-accent-500"
       />
-      <select value={criticality} onChange={(e) => setCriticality(e.target.value as typeof criticality)} className="rounded border border-slate-200 px-2 py-1 text-xs">
+      <select value={criticality} onChange={(e) => setCriticality(e.target.value as typeof criticality)} className="rounded border border-neutral-200 px-2 py-1 text-xs">
         {toOptions(SERVICE_CRITICALITY_LABELS).map((o) => (
           <option key={o.value} value={o.value}>
             {o.label}
@@ -105,7 +105,7 @@ export function CreateServiceForm({
       <button
         type="submit"
         disabled={submitting || !name.trim() || !category.trim()}
-        className="text-xs font-medium rounded-lg px-3 py-1.5 text-white bg-[#0B1220] hover:bg-slate-800 disabled:bg-slate-300"
+        className="text-xs font-medium rounded-full px-3 py-1.5 text-white bg-accent-600 hover:bg-accent-700 disabled:bg-neutral-300"
       >
         Create
       </button>

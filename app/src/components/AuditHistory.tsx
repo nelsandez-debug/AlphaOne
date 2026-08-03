@@ -32,7 +32,7 @@ export function AuditHistory({ entries }: { entries: AuditEntry[] }) {
               {path && e.createdRecordId && (
                 <>
                   {" · "}
-                  <Link href={`${path}/${e.createdRecordId}`} className="text-[#2563EB] hover:underline">
+                  <Link href={`${path}/${e.createdRecordId}`} className="text-accent-700 hover:underline">
                     View {e.createdRecordType}
                   </Link>
                 </>

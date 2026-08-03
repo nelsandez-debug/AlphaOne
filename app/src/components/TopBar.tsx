@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Plus } from "lucide-react";
+import { Bell, Plus } from "lucide-react";
 import { UserButton } from "@clerk/nextjs";
 import { NAV_SECTIONS } from "@/lib/nav-items";
 
@@ -19,22 +19,34 @@ export function TopBar({ userName, userRole }: { userName?: string; userRole?: s
   const pathname = usePathname();
 
   return (
-    <header className="flex items-center justify-between border-b border-slate-200 bg-white px-6 py-3">
+    <header className="glass mx-3.5 mt-3.5 flex items-center justify-between px-5 py-3">
       <div>
-        <p className="text-sm font-semibold text-slate-900">{currentLabel(pathname)}</p>
+        <p className="font-heading text-base">{currentLabel(pathname)}</p>
         {userName && (
-          <p className="text-xs text-slate-500">
+          <p className="text-xs text-neutral-600">
             Signed in as {userName} {userRole ? `(${userRole})` : ""}
           </p>
         )}
       </div>
       <div className="flex items-center gap-3">
+        <input
+          type="text"
+          placeholder="Search…"
+          className="hidden w-56 rounded-full border border-black/[0.06] bg-white/60 px-4 py-2 text-sm outline-none placeholder:text-neutral-500 focus-visible:border-accent-500 sm:block"
+        />
+        <button
+          type="button"
+          aria-label="Notifications"
+          className="flex h-9 w-9 items-center justify-center rounded-full border border-black/[0.06] bg-white/50 text-accent-700 hover:bg-white/70"
+        >
+          <Bell size={16} strokeWidth={1.5} />
+        </button>
         <Link
           href="/intake"
-          className="flex items-center gap-1.5 rounded-lg bg-[#0B1220] px-3 py-2 text-sm font-medium text-white hover:bg-slate-800"
+          className="flex items-center gap-1.5 rounded-full bg-accent-600 px-4 py-2 text-sm font-medium text-white hover:bg-accent-700"
         >
           <Plus size={14} />
-          New intake
+          New Requisition
         </Link>
         <UserButton />
       </div>

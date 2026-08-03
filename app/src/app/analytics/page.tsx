@@ -31,7 +31,7 @@ export default async function AnalyticsPage() {
 
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
         {kpis.map((k) => (
-          <div key={k.label} className="rounded-xl border border-slate-200 bg-white p-5">
+          <div key={k.label} className="glass p-5">
             <p className="text-xs text-slate-500">{k.label}</p>
             <p className="mt-1 text-xl font-semibold text-slate-900">{k.value}</p>
           </div>
@@ -40,7 +40,7 @@ export default async function AnalyticsPage() {
 
       <div>
         <p className="text-xs font-semibold uppercase tracking-wide text-slate-400 mb-3">Spend by category (from invoices)</p>
-        <div className="rounded-xl border border-slate-200 bg-white overflow-hidden">
+        <div className="glass overflow-hidden">
           <table className="w-full text-sm">
             <thead>
               <tr className="border-b border-slate-100 text-left text-xs uppercase tracking-wide text-slate-400">

@@ -33,7 +33,7 @@ export default async function PurchaseOrdersPage({ searchParams }: { searchParam
               <>
                 {" "}for <span className="font-medium text-slate-700">{filterLabel}</span>
                 {" · "}
-                <Link href="/purchase-orders" className="text-[#2563EB] hover:underline">clear filter</Link>
+                <Link href="/purchase-orders" className="text-accent-700 hover:underline">clear filter</Link>
               </>
             )}
           </p>
@@ -41,7 +41,7 @@ export default async function PurchaseOrdersPage({ searchParams }: { searchParam
         {access.editable && <CreatePOForm suppliers={suppliers} defaultSupplierId={supplierId} />}
       </div>
 
-      <div className="rounded-xl border border-slate-200 bg-white overflow-hidden">
+      <div className="glass overflow-hidden">
         <table className="w-full text-sm">
           <thead>
             <tr className="border-b border-slate-100 text-left text-xs uppercase tracking-wide text-slate-400">
@@ -54,14 +54,14 @@ export default async function PurchaseOrdersPage({ searchParams }: { searchParam
           </thead>
           <tbody>
             {orders.map((o) => (
-              <tr key={o.id} className="border-b border-slate-50 last:border-0 hover:bg-slate-50">
+              <tr key={o.id} className="border-b border-slate-50 last:border-0 hover:bg-neutral-100">
                 <td className="px-4 py-2.5">
-                  <Link href={`/purchase-orders/${o.id}`} className="font-medium text-slate-900 hover:text-[#2563EB]">
+                  <Link href={`/purchase-orders/${o.id}`} className="font-medium text-slate-900 hover:text-accent-700">
                     PO-{o.id.slice(-6).toUpperCase()}
                   </Link>
                 </td>
                 <td className="px-4 py-2.5">
-                  <Link href={`/suppliers/${o.supplier.id}`} className="text-slate-600 hover:text-[#2563EB]">{o.supplier.name}</Link>
+                  <Link href={`/suppliers/${o.supplier.id}`} className="text-slate-600 hover:text-accent-700">{o.supplier.name}</Link>
                 </td>
                 <td className="px-4 py-2.5 text-slate-600">{PO_TYPE_LABELS[o.type]}</td>
                 <td className="px-4 py-2.5 text-slate-600">{PO_STATUS_LABELS[o.status]}</td>

@@ -16,7 +16,7 @@ export default async function UsersPage() {
         <p className="text-sm text-slate-500">{users.length} users. Role changes take effect immediately via the Roles &amp; Permissions matrix.</p>
       </div>
 
-      <div className="rounded-xl border border-slate-200 bg-white overflow-hidden">
+      <div className="glass overflow-hidden">
         <table className="w-full text-sm">
           <thead>
             <tr className="border-b border-slate-100 text-left text-xs uppercase tracking-wide text-slate-400">
@@ -27,7 +27,7 @@ export default async function UsersPage() {
           </thead>
           <tbody>
             {users.map((u) => (
-              <tr key={u.id} className="border-b border-slate-50 last:border-0 hover:bg-slate-50">
+              <tr key={u.id} className="border-b border-slate-50 last:border-0 hover:bg-neutral-100">
                 <td className="px-4 py-2.5 font-medium text-slate-900">{u.name}</td>
                 <td className="px-4 py-2.5 text-slate-600">{u.email}</td>
                 <td className="px-4 py-2.5">

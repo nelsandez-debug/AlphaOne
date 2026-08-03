@@ -40,7 +40,7 @@ export default async function VendorManagementPage() {
         <p className="text-sm text-slate-500">Governance rollup across Suppliers, SLAs, held invoices, and business reviews.</p>
       </div>
 
-      <div className="rounded-xl border border-slate-200 bg-white overflow-hidden">
+      <div className="glass overflow-hidden">
         <table className="w-full text-sm">
           <thead>
             <tr className="border-b border-slate-100 text-left text-xs uppercase tracking-wide text-slate-400">
@@ -52,9 +52,9 @@ export default async function VendorManagementPage() {
           </thead>
           <tbody>
             {suppliers.map((s) => (
-              <tr key={s.id} className="border-b border-slate-50 last:border-0 hover:bg-slate-50">
+              <tr key={s.id} className="border-b border-slate-50 last:border-0 hover:bg-neutral-100">
                 <td className="px-4 py-2.5">
-                  <Link href={`/suppliers/${s.id}`} className="font-medium text-slate-900 hover:text-[#2563EB]">{s.name}</Link>
+                  <Link href={`/suppliers/${s.id}`} className="font-medium text-slate-900 hover:text-accent-700">{s.name}</Link>
                 </td>
                 <td className="px-4 py-2.5">
                   {s._count.vendorSlas > 0 ? <span className="text-amber-600 font-medium">{s._count.vendorSlas}</span> : <span className="text-slate-400">0</span>}
@@ -80,7 +80,7 @@ export default async function VendorManagementPage() {
           <p className="text-xs font-semibold uppercase tracking-wide text-slate-400">Vendor SLAs</p>
           {access.editable && <CreateVendorSlaForm suppliers={suppliers} />}
         </div>
-        <div className="rounded-xl border border-slate-200 bg-white overflow-hidden">
+        <div className="glass overflow-hidden">
           <table className="w-full text-sm">
             <thead>
               <tr className="border-b border-slate-100 text-left text-xs uppercase tracking-wide text-slate-400">
@@ -94,7 +94,7 @@ export default async function VendorManagementPage() {
             <tbody>
               {slas.map((sla) => (
                 <tr key={sla.id} className="border-b border-slate-50 last:border-0">
-                  <td className="px-4 py-2.5"><Link href={`/suppliers/${sla.supplier.id}`} className="text-slate-700 hover:text-[#2563EB]">{sla.supplier.name}</Link></td>
+                  <td className="px-4 py-2.5"><Link href={`/suppliers/${sla.supplier.id}`} className="text-slate-700 hover:text-accent-700">{sla.supplier.name}</Link></td>
                   <td className="px-4 py-2.5 text-slate-600">{sla.metric}</td>
                   <td className="px-4 py-2.5 text-slate-600">{sla.target}</td>
                   <td className="px-4 py-2.5 text-slate-600">{sla.actual ?? "—"}</td>
@@ -116,7 +116,7 @@ export default async function VendorManagementPage() {
           <p className="text-xs font-semibold uppercase tracking-wide text-slate-400">Business reviews</p>
           {access.editable && <CreateBusinessReviewForm suppliers={suppliers} />}
         </div>
-        <div className="rounded-xl border border-slate-200 bg-white overflow-hidden">
+        <div className="glass overflow-hidden">
           <table className="w-full text-sm">
             <thead>
               <tr className="border-b border-slate-100 text-left text-xs uppercase tracking-wide text-slate-400">
@@ -129,7 +129,7 @@ export default async function VendorManagementPage() {
             <tbody>
               {reviews.map((r) => (
                 <tr key={r.id} className="border-b border-slate-50 last:border-0">
-                  <td className="px-4 py-2.5"><Link href={`/suppliers/${r.supplier.id}`} className="text-slate-700 hover:text-[#2563EB]">{r.supplier.name}</Link></td>
+                  <td className="px-4 py-2.5"><Link href={`/suppliers/${r.supplier.id}`} className="text-slate-700 hover:text-accent-700">{r.supplier.name}</Link></td>
                   <td className="px-4 py-2.5 text-slate-600">{BUSINESS_REVIEW_TYPE_LABELS[r.type]}</td>
                   <td className="px-4 py-2.5 text-slate-600">{new Date(r.scheduledDate).toLocaleDateString()}</td>
                   <td className="px-4 py-2.5 text-slate-600">{BUSINESS_REVIEW_STATUS_LABELS[r.status]}</td>

@@ -80,7 +80,7 @@ export function stageDotClass(stage: IntakeStage): string {
     case "CLOSED":
       return "bg-emerald-500";
     case "IN_PROGRESS":
-      return "bg-[#2563EB]";
+      return "bg-accent-600";
     case "ROUTED":
       return "bg-[#16A34A]";
     case "TRIAGE":
@@ -157,7 +157,7 @@ export function invoiceStatusBadgeClass(status: InvoiceStatus): string {
     case "DISPUTED":
       return "bg-red-50 text-red-700 border-red-200";
     default:
-      return "bg-slate-50 text-slate-500 border-slate-200";
+      return "bg-neutral-100 text-slate-500 border-neutral-200";
   }
 }
 
@@ -170,7 +170,7 @@ export function vendorSlaStatusBadgeClass(status: VendorSlaStatus): string {
     case "BREACHED":
       return "bg-red-50 text-red-700 border-red-200";
     default:
-      return "bg-slate-50 text-slate-500 border-slate-200";
+      return "bg-neutral-100 text-slate-500 border-neutral-200";
   }
 }
 
@@ -205,7 +205,7 @@ export function projectStatusBadgeClass(status: ProjectStatus): string {
     case "CANCELLED":
       return "bg-red-50 text-red-700 border-red-200";
     default:
-      return "bg-slate-50 text-slate-500 border-slate-200";
+      return "bg-neutral-100 text-slate-500 border-neutral-200";
   }
 }
 
@@ -247,9 +247,9 @@ export function permissionLevelBadgeClass(level: PermissionLevel): string {
     case "EDIT":
       return "bg-emerald-50 text-emerald-700 border-emerald-200";
     case "VIEW":
-      return "bg-slate-50 text-slate-600 border-slate-200";
+      return "bg-neutral-100 text-slate-600 border-neutral-200";
     default:
-      return "bg-slate-50 text-slate-300 border-slate-100";
+      return "bg-neutral-100 text-slate-300 border-slate-100";
   }
 }
 
@@ -281,6 +281,6 @@ export function riskBadgeClass(level: RiskLevel | null | undefined): string {
     case "LOW":
       return "bg-emerald-50 text-emerald-700 border-emerald-200";
     default:
-      return "bg-slate-50 text-slate-500 border-slate-200";
+      return "bg-neutral-100 text-slate-500 border-neutral-200";
   }
 }

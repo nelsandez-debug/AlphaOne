@@ -30,14 +30,14 @@ export function SupplierHeaderFields({ supplier, editable }: { supplier: Supplie
         value={supplier.tier}
         editable={editable}
         options={toOptions(SUPPLIER_TIER_LABELS)}
-        renderValue={(v) => <span className="rounded-full border border-slate-200 bg-slate-50 px-2 py-0.5 text-xs">{SUPPLIER_TIER_LABELS[v as keyof typeof SUPPLIER_TIER_LABELS]}</span>}
+        renderValue={(v) => <span className="rounded-full border border-neutral-200 bg-neutral-100 px-2 py-0.5 text-xs">{SUPPLIER_TIER_LABELS[v as keyof typeof SUPPLIER_TIER_LABELS]}</span>}
         onSave={(tier) => patch({ tier: tier as Supplier["tier"] })}
       />
       <EditableSelect
         value={supplier.status}
         editable={editable}
         options={toOptions(SUPPLIER_STATUS_LABELS)}
-        renderValue={(v) => <span className="rounded-full border border-slate-200 bg-slate-50 px-2 py-0.5 text-xs">{SUPPLIER_STATUS_LABELS[v as keyof typeof SUPPLIER_STATUS_LABELS]}</span>}
+        renderValue={(v) => <span className="rounded-full border border-neutral-200 bg-neutral-100 px-2 py-0.5 text-xs">{SUPPLIER_STATUS_LABELS[v as keyof typeof SUPPLIER_STATUS_LABELS]}</span>}
         onSave={(status) => patch({ status: status as Supplier["status"] })}
       />
       <EditableSelect

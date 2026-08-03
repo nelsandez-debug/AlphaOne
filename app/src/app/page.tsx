@@ -16,12 +16,12 @@ export default async function Home() {
   const avgMonthlyRunRate = forecast.projectedAnnualRunRate / 12;
 
   return (
-    <div className="mx-auto w-full max-w-6xl flex flex-1 flex-col gap-6 p-8">
+    <div className="mx-auto w-full max-w-6xl flex flex-1 flex-col gap-6 p-4">
       <div>
-        <h1 className="text-2xl font-semibold text-slate-900">Control Tower</h1>
-        <p className="mt-1 text-sm text-slate-500">
-          {user ? `Welcome back, ${user.name}.` : "Welcome."} Every number below is a live aggregation over real
-          Supplier/Contract/Invoice/PO data — nothing here is a fabricated demo metric.
+        <h1 className="text-2xl">{user ? `Good morning, ${user.name.split(" ")[0]}` : "Control Tower"}</h1>
+        <p className="mt-1 text-sm text-neutral-600">
+          Every number below is a live aggregation over real Supplier/Contract/Invoice/PO data — nothing here is a
+          fabricated demo metric.
         </p>
       </div>
 
@@ -54,26 +54,26 @@ export default async function Home() {
       </div>
 
       <div className="grid gap-4 lg:grid-cols-2">
-        <div className="rounded-xl border border-slate-200 bg-white p-5">
-          <h2 className="text-sm font-semibold text-slate-900">Monthly spend</h2>
-          <p className="text-xs text-slate-500">Actual invoiced spend by month, vs. the average monthly run-rate</p>
+        <div className="glass p-5">
+          <h2 className="font-heading text-base">Monthly spend</h2>
+          <p className="text-xs text-neutral-600">Actual invoiced spend by month, vs. the average monthly run-rate</p>
           <div className="mt-4">
             {forecast.monthly.length > 0 ? (
               <SpendTrendChart monthly={forecast.monthly} avgMonthlyRunRate={avgMonthlyRunRate} />
             ) : (
-              <p className="py-12 text-center text-sm text-slate-400">No dated invoices yet</p>
+              <p className="py-12 text-center text-sm text-neutral-500">No dated invoices yet</p>
             )}
           </div>
         </div>
 
-        <div className="rounded-xl border border-slate-200 bg-white p-5">
-          <h2 className="text-sm font-semibold text-slate-900">Spend by category</h2>
-          <p className="text-xs text-slate-500">Total invoiced spend, grouped by supplier category</p>
+        <div className="glass p-5">
+          <h2 className="font-heading text-base">Spend by category</h2>
+          <p className="text-xs text-neutral-600">Total invoiced spend, grouped by supplier category</p>
           <div className="mt-4">
             {analytics.categorySpend.length > 0 ? (
               <CategorySpendChart categorySpend={analytics.categorySpend} />
             ) : (
-              <p className="py-12 text-center text-sm text-slate-400">No invoiced spend yet</p>
+              <p className="py-12 text-center text-sm text-neutral-500">No invoiced spend yet</p>
             )}
           </div>
         </div>

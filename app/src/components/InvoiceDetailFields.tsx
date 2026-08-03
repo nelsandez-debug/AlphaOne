@@ -40,7 +40,7 @@ export function InvoiceDetailFields({ invoice, editable }: { invoice: Invoice; e
           <button
             type="button"
             onClick={() => patch({ onHold: !invoice.onHold, holdReason: invoice.onHold ? null : invoice.holdReason })}
-            className={`text-xs font-medium rounded-lg px-3 py-1.5 ${invoice.onHold ? "bg-red-600 text-white hover:bg-red-700" : "border border-slate-200 text-slate-600 hover:bg-slate-50"}`}
+            className={`text-xs font-medium rounded-lg px-3 py-1.5 ${invoice.onHold ? "bg-red-600 text-white hover:bg-red-700" : "border border-neutral-200 text-slate-600 hover:bg-neutral-100"}`}
           >
             {invoice.onHold ? "Release hold" : "Place on hold"}
           </button>

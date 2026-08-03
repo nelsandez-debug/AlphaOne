@@ -45,7 +45,7 @@ export function ServiceHeaderFields({ service, editable }: { service: Service; e
         editable={editable}
         options={toOptions(SERVICE_CRITICALITY_LABELS)}
         renderValue={(v) => (
-          <span className="rounded-full border border-slate-200 bg-slate-50 px-2 py-0.5 text-xs">
+          <span className="rounded-full border border-neutral-200 bg-neutral-100 px-2 py-0.5 text-xs">
             {SERVICE_CRITICALITY_LABELS[v as keyof typeof SERVICE_CRITICALITY_LABELS]}
           </span>
         )}
@@ -81,13 +81,13 @@ export function ServiceRiskAssessment({ riskAssessment }: { riskAssessment: unkn
   return (
     <div className="space-y-2">
       {entries.map(([category, detail]) => (
-        <div key={category} className="flex items-start justify-between gap-3 rounded-lg bg-slate-50 border border-slate-200 px-3 py-2">
+        <div key={category} className="flex items-start justify-between gap-3 rounded-lg bg-neutral-100 border border-neutral-200 px-3 py-2">
           <div>
             <p className="text-xs font-medium text-slate-700">{category}</p>
             {detail?.note && <p className="text-[11px] text-slate-400">{detail.note}</p>}
           </div>
           {detail?.rating && (
-            <span className={`shrink-0 inline-block rounded-full border px-2 py-0.5 text-xs ${RISK_RATING_CLASS[detail.rating] ?? "bg-slate-100 text-slate-600 border-slate-200"}`}>
+            <span className={`shrink-0 inline-block rounded-full border px-2 py-0.5 text-xs ${RISK_RATING_CLASS[detail.rating] ?? "bg-slate-100 text-slate-600 border-neutral-200"}`}>
               {detail.rating}
             </span>
           )}

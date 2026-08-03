@@ -32,13 +32,13 @@ export default async function ServiceDetailPage({ params }: { params: Promise<{ 
     <div className="mx-auto w-full max-w-4xl space-y-6 p-8">
       <div>
         <div className="flex items-center gap-2 text-xs font-medium">
-          <Link href={`/suppliers/${service.supplier.id}`} className="text-[#2563EB] hover:underline">
+          <Link href={`/suppliers/${service.supplier.id}`} className="text-accent-700 hover:underline">
             {service.supplier.name}
           </Link>
           {service.contract && (
             <>
               <span className="text-slate-300">·</span>
-              <Link href={`/contracts/${service.contract.id}`} className="text-[#2563EB] hover:underline">
+              <Link href={`/contracts/${service.contract.id}`} className="text-accent-700 hover:underline">
                 {service.contract.name}
               </Link>
             </>
@@ -58,7 +58,7 @@ export default async function ServiceDetailPage({ params }: { params: Promise<{ 
         </div>
       </div>
 
-      <div className="rounded-xl border border-slate-200 bg-white p-5">
+      <div className="glass p-5">
         <p className="text-xs font-semibold uppercase tracking-wide text-slate-400 mb-3">Risk assessment (multi-category)</p>
         <ServiceRiskAssessment riskAssessment={service.riskAssessment} />
       </div>

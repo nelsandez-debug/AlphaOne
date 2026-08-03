@@ -30,7 +30,7 @@ export default async function InvoiceDetailPage({ params }: { params: Promise<{ 
   return (
     <div className="mx-auto w-full max-w-4xl space-y-6 p-8">
       <div>
-        <Link href={`/suppliers/${invoice.supplier.id}`} className="text-xs font-medium text-[#2563EB] hover:underline">
+        <Link href={`/suppliers/${invoice.supplier.id}`} className="text-xs font-medium text-accent-700 hover:underline">
           {invoice.supplier.name}
         </Link>
         <h1 className="text-xl font-semibold text-slate-900">INV-{invoice.id.slice(-6).toUpperCase()} · ${invoice.amount.toLocaleString()}</h1>
@@ -42,13 +42,13 @@ export default async function InvoiceDetailPage({ params }: { params: Promise<{ 
         </div>
       </div>
 
-      <div className="rounded-xl border border-slate-200 bg-white p-5">
+      <div className="glass p-5">
         <p className="text-xs font-semibold uppercase tracking-wide text-slate-400 mb-3">PO matching</p>
         {invoice.purchaseOrder ? (
           <div className="text-sm text-slate-600">
             <p>
               Matched to{" "}
-              <Link href={`/purchase-orders/${invoice.purchaseOrder.id}`} className="text-[#2563EB] hover:underline">
+              <Link href={`/purchase-orders/${invoice.purchaseOrder.id}`} className="text-accent-700 hover:underline">
                 PO-{invoice.purchaseOrder.id.slice(-6).toUpperCase()}
               </Link>{" "}
               (${invoice.purchaseOrder.amount.toLocaleString()})

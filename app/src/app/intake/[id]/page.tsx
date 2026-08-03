@@ -44,7 +44,7 @@ export default async function IntakeDetailPage({ params }: { params: Promise<{ i
         </div>
       </div>
 
-      <div className="flex items-center gap-2 rounded-xl border border-slate-200 bg-white px-5 py-4">
+      <div className="flex items-center gap-2 glass px-5 py-4">
         {STAGES.map((s, i) => (
           <div key={s} className="flex items-center gap-2 flex-1">
             <div className="flex items-center gap-1.5">
@@ -58,7 +58,7 @@ export default async function IntakeDetailPage({ params }: { params: Promise<{ i
 
       {access.editable && <DispositionPanel intakeRequest={intakeRequest} suppliers={suppliers} contracts={contracts} />}
 
-      <div className="rounded-xl border border-slate-200 bg-white p-5">
+      <div className="glass p-5">
         <p className="text-xs font-semibold uppercase tracking-wide text-slate-400 mb-3">Activity &amp; disposition history</p>
         <AuditHistory entries={auditEntries} />
       </div>

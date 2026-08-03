@@ -19,7 +19,7 @@ export function CreateSupplierForm() {
       <button
         type="button"
         onClick={() => setOpen(true)}
-        className="inline-flex items-center gap-1.5 text-xs font-medium text-white bg-[#0B1220] hover:bg-slate-800 rounded-lg px-3 py-1.5"
+        className="inline-flex items-center gap-1.5 text-xs font-medium text-white bg-accent-600 hover:bg-accent-700 rounded-full px-3 py-1.5"
       >
         <Plus size={13} /> New supplier
       </button>
@@ -45,28 +45,28 @@ export function CreateSupplierForm() {
   };
 
   return (
-    <form onSubmit={submit} className="flex flex-wrap items-center gap-2 rounded-lg border border-slate-200 bg-white p-3">
+    <form onSubmit={submit} className="flex flex-wrap items-center gap-2 glass p-3">
       <input
         autoFocus
         value={name}
         onChange={(e) => setName(e.target.value)}
         placeholder="Supplier name"
-        className="rounded border border-slate-200 px-2 py-1 text-xs outline-none focus:border-[#2563EB]"
+        className="rounded border border-neutral-200 px-2 py-1 text-xs outline-none focus:border-accent-500"
       />
       <input
         value={category}
         onChange={(e) => setCategory(e.target.value)}
         placeholder="Category"
-        className="rounded border border-slate-200 px-2 py-1 text-xs outline-none focus:border-[#2563EB]"
+        className="rounded border border-neutral-200 px-2 py-1 text-xs outline-none focus:border-accent-500"
       />
-      <select value={tier} onChange={(e) => setTier(e.target.value as typeof tier)} className="rounded border border-slate-200 px-2 py-1 text-xs">
+      <select value={tier} onChange={(e) => setTier(e.target.value as typeof tier)} className="rounded border border-neutral-200 px-2 py-1 text-xs">
         {toOptions(SUPPLIER_TIER_LABELS).map((o) => (
           <option key={o.value} value={o.value}>
             {o.label}
           </option>
         ))}
       </select>
-      <select value={status} onChange={(e) => setStatus(e.target.value as typeof status)} className="rounded border border-slate-200 px-2 py-1 text-xs">
+      <select value={status} onChange={(e) => setStatus(e.target.value as typeof status)} className="rounded border border-neutral-200 px-2 py-1 text-xs">
         {toOptions(SUPPLIER_STATUS_LABELS).map((o) => (
           <option key={o.value} value={o.value}>
             {o.label}
@@ -76,7 +76,7 @@ export function CreateSupplierForm() {
       <button
         type="submit"
         disabled={submitting || !name.trim() || !category.trim()}
-        className="text-xs font-medium rounded-lg px-3 py-1.5 text-white bg-[#0B1220] hover:bg-slate-800 disabled:bg-slate-300"
+        className="text-xs font-medium rounded-full px-3 py-1.5 text-white bg-accent-600 hover:bg-accent-700 disabled:bg-neutral-300"
       >
         Create
       </button>

@@ -24,7 +24,7 @@ export default async function AdministrationPage() {
 
       <div className="grid gap-4 sm:grid-cols-2">
         {SECTIONS.map((s) => (
-          <Link key={s.href} href={s.href} className="rounded-xl border border-slate-200 bg-white p-5 hover:border-[#2563EB] hover:shadow-sm">
+          <Link key={s.href} href={s.href} className="glass p-5 hover:border-accent-500 hover:shadow-sm">
             <s.icon size={18} className="text-slate-400" />
             <p className="mt-3 text-sm font-medium text-slate-900">{s.label}</p>
             <p className="mt-1 text-xs text-slate-500">{s.description}</p>

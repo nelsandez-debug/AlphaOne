@@ -31,7 +31,7 @@ export default async function ValueTrackingPage() {
         {access.editable && <CreateValueItemForm suppliers={suppliers} contracts={contracts} purchaseOrders={purchaseOrders} />}
       </div>
 
-      <div className="rounded-xl border border-slate-200 bg-white overflow-hidden">
+      <div className="glass overflow-hidden">
         <table className="w-full text-sm">
           <thead>
             <tr className="border-b border-slate-100 text-left text-xs uppercase tracking-wide text-slate-400">
@@ -45,12 +45,12 @@ export default async function ValueTrackingPage() {
           </thead>
           <tbody>
             {items.map((i) => (
-              <tr key={i.id} className="border-b border-slate-50 last:border-0 hover:bg-slate-50">
+              <tr key={i.id} className="border-b border-slate-50 last:border-0 hover:bg-neutral-100">
                 <td className="px-4 py-2.5">
-                  <Link href={`/value-tracking/${i.id}`} className="font-medium text-slate-900 hover:text-[#2563EB]">{i.title}</Link>
+                  <Link href={`/value-tracking/${i.id}`} className="font-medium text-slate-900 hover:text-accent-700">{i.title}</Link>
                 </td>
                 <td className="px-4 py-2.5">
-                  <Link href={`/suppliers/${i.supplier.id}`} className="text-slate-600 hover:text-[#2563EB]">{i.supplier.name}</Link>
+                  <Link href={`/suppliers/${i.supplier.id}`} className="text-slate-600 hover:text-accent-700">{i.supplier.name}</Link>
                 </td>
                 <td className="px-4 py-2.5 text-slate-600">{VALUE_TYPE_LABELS[i.type]}</td>
                 <td className="px-4 py-2.5 text-slate-600">${i.amount.toLocaleString()}</td>

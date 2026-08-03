@@ -7,7 +7,13 @@ import { Role } from "@/generated/prisma/enums";
 const mockAuth = vi.fn();
 
 vi.mock("@clerk/nextjs/server", () => ({
-  auth: () => mockAuth(),
+  clerkClient: async () => ({
+    authenticateRequest: async () => {
+      const authResult = await mockAuth();
+      return { toAuth: () => authResult };
+    },
+    users: { getUser: async () => ({ publicMetadata: {}, emailAddresses: [], firstName: null, lastName: null }) },
+  }),
 }));
 
 const { POST } = await import("./route");

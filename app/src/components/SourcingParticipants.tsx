@@ -58,18 +58,18 @@ export function SourcingParticipants({
   };
 
   return (
-    <div className="rounded-xl border border-slate-200 bg-white p-5">
+    <div className="glass p-5">
       <div className="flex items-center justify-between mb-3">
         <p className="text-xs font-semibold uppercase tracking-wide text-slate-400">Participating suppliers ({participants.length})</p>
         {editable && availableSuppliers.length > 0 && (
           <div className="flex items-center gap-1.5">
-            <select value={inviteSupplierId} onChange={(e) => setInviteSupplierId(e.target.value)} className="rounded border border-slate-200 px-2 py-1 text-xs">
+            <select value={inviteSupplierId} onChange={(e) => setInviteSupplierId(e.target.value)} className="rounded border border-neutral-200 px-2 py-1 text-xs">
               <option value="">Invite a supplier…</option>
               {availableSuppliers.map((s) => (
                 <option key={s.id} value={s.id}>{s.name}</option>
               ))}
             </select>
-            <button type="button" onClick={invite} disabled={!inviteSupplierId} className="text-[#2563EB] disabled:text-slate-300">
+            <button type="button" onClick={invite} disabled={!inviteSupplierId} className="text-accent-700 disabled:text-slate-300">
               <UserPlus size={16} />
             </button>
           </div>
@@ -81,12 +81,12 @@ export function SourcingParticipants({
       ) : (
         <div className="space-y-2">
           {participants.map((p) => (
-            <div key={p.id} className="flex items-center justify-between rounded-lg bg-slate-50 border border-slate-200 px-3 py-2">
-              <Link href={`/suppliers/${p.supplier.id}`} className="text-xs font-medium text-slate-700 hover:text-[#2563EB]">
+            <div key={p.id} className="flex items-center justify-between rounded-lg bg-neutral-100 border border-neutral-200 px-3 py-2">
+              <Link href={`/suppliers/${p.supplier.id}`} className="text-xs font-medium text-slate-700 hover:text-accent-700">
                 {p.supplier.name}
               </Link>
               {editable ? (
-                <select value={p.status} onChange={(e) => updateStatus(p.id, e.target.value)} className="rounded border border-slate-200 px-1.5 py-0.5 text-xs bg-white">
+                <select value={p.status} onChange={(e) => updateStatus(p.id, e.target.value)} className="rounded border border-neutral-200 px-1.5 py-0.5 text-xs bg-white">
                   {toOptions(SOURCING_PARTICIPANT_STATUS_LABELS).map((o) => (
                     <option key={o.value} value={o.value}>{o.label}</option>
                   ))}

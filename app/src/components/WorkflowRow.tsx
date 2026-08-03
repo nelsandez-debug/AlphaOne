@@ -16,7 +16,7 @@ export function WorkflowRow({ workflow, editable }: { workflow: WorkflowConfig; 
   };
 
   return (
-    <div className="flex items-center justify-between rounded-xl border border-slate-200 bg-white p-4">
+    <div className="flex items-center justify-between glass p-4">
       <div>
         <p className="text-sm font-medium text-slate-900">{workflow.name}</p>
         {workflow.description && <p className="text-xs text-slate-500 mt-0.5">{workflow.description}</p>}

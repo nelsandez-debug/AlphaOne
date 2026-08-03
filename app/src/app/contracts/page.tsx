@@ -35,7 +35,7 @@ export default async function ContractsPage({ searchParams }: { searchParams: Pr
                 {" "}
                 for <span className="font-medium text-slate-700">{filterLabel}</span>
                 {" · "}
-                <Link href="/contracts" className="text-[#2563EB] hover:underline">
+                <Link href="/contracts" className="text-accent-700 hover:underline">
                   clear filter
                 </Link>
               </>
@@ -45,7 +45,7 @@ export default async function ContractsPage({ searchParams }: { searchParams: Pr
         {access.editable && <CreateContractForm suppliers={suppliers} defaultSupplierId={supplierId} />}
       </div>
 
-      <div className="rounded-xl border border-slate-200 bg-white overflow-hidden">
+      <div className="glass overflow-hidden">
         <table className="w-full text-sm">
           <thead>
             <tr className="border-b border-slate-100 text-left text-xs uppercase tracking-wide text-slate-400">
@@ -58,14 +58,14 @@ export default async function ContractsPage({ searchParams }: { searchParams: Pr
           </thead>
           <tbody>
             {contracts.map((c) => (
-              <tr key={c.id} className="border-b border-slate-50 last:border-0 hover:bg-slate-50">
+              <tr key={c.id} className="border-b border-slate-50 last:border-0 hover:bg-neutral-100">
                 <td className="px-4 py-2.5">
-                  <Link href={`/contracts/${c.id}`} className="font-medium text-slate-900 hover:text-[#2563EB]">
+                  <Link href={`/contracts/${c.id}`} className="font-medium text-slate-900 hover:text-accent-700">
                     {c.name}
                   </Link>
                 </td>
                 <td className="px-4 py-2.5">
-                  <Link href={`/suppliers/${c.supplier.id}`} className="text-slate-600 hover:text-[#2563EB]">
+                  <Link href={`/suppliers/${c.supplier.id}`} className="text-slate-600 hover:text-accent-700">
                     {c.supplier.name}
                   </Link>
                 </td>

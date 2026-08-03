@@ -30,7 +30,7 @@ export default async function PermissionsPage() {
         </p>
       </div>
 
-      <div className="rounded-xl border border-slate-200 bg-white overflow-x-auto">
+      <div className="glass overflow-x-auto">
         <table className="w-full text-sm">
           <thead>
             <tr className="border-b border-slate-100 text-left text-xs uppercase tracking-wide text-slate-400">
@@ -42,7 +42,7 @@ export default async function PermissionsPage() {
           </thead>
           <tbody>
             {modules.map((m) => (
-              <tr key={m.id} className="border-b border-slate-50 last:border-0 hover:bg-slate-50">
+              <tr key={m.id} className="border-b border-slate-50 last:border-0 hover:bg-neutral-100">
                 <td className="px-4 py-2.5 font-medium text-slate-900 sticky left-0 bg-white">{m.label}</td>
                 {ROLES.map((role) => {
                   const cell = cellFor(m.id, role);

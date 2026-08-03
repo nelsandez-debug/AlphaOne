@@ -33,7 +33,7 @@ export function CreateValueItemForm({
         type="button"
         onClick={() => setOpen(true)}
         disabled={suppliers.length === 0}
-        className="inline-flex items-center gap-1.5 text-xs font-medium text-white bg-[#0B1220] hover:bg-slate-800 disabled:bg-slate-300 rounded-lg px-3 py-1.5"
+        className="inline-flex items-center gap-1.5 text-xs font-medium text-white bg-accent-600 hover:bg-accent-700 disabled:bg-neutral-300 rounded-full px-3 py-1.5"
       >
         <Plus size={13} /> Submit value item
       </button>
@@ -65,15 +65,15 @@ export function CreateValueItemForm({
   };
 
   return (
-    <form onSubmit={submit} className="flex flex-wrap items-center gap-2 rounded-lg border border-slate-200 bg-white p-3">
+    <form onSubmit={submit} className="flex flex-wrap items-center gap-2 glass p-3">
       <input
         autoFocus
         value={title}
         onChange={(e) => setTitle(e.target.value)}
         placeholder="What did you achieve?"
-        className="rounded border border-slate-200 px-2 py-1 text-xs outline-none focus:border-[#2563EB] w-64"
+        className="rounded border border-neutral-200 px-2 py-1 text-xs outline-none focus:border-accent-500 w-64"
       />
-      <select value={type} onChange={(e) => setType(e.target.value as typeof type)} className="rounded border border-slate-200 px-2 py-1 text-xs">
+      <select value={type} onChange={(e) => setType(e.target.value as typeof type)} className="rounded border border-neutral-200 px-2 py-1 text-xs">
         {toOptions(VALUE_TYPE_LABELS).map((o) => (
           <option key={o.value} value={o.value}>{o.label}</option>
         ))}
@@ -83,7 +83,7 @@ export function CreateValueItemForm({
         onChange={(e) => setAmount(e.target.value)}
         placeholder="Amount ($)"
         type="number"
-        className="rounded border border-slate-200 px-2 py-1 text-xs w-28 outline-none focus:border-[#2563EB]"
+        className="rounded border border-neutral-200 px-2 py-1 text-xs w-28 outline-none focus:border-accent-500"
       />
       <select
         value={supplierId}
@@ -92,19 +92,19 @@ export function CreateValueItemForm({
           setContractId("");
           setPurchaseOrderId("");
         }}
-        className="rounded border border-slate-200 px-2 py-1 text-xs"
+        className="rounded border border-neutral-200 px-2 py-1 text-xs"
       >
         {suppliers.map((s) => (
           <option key={s.id} value={s.id}>{s.name}</option>
         ))}
       </select>
-      <select value={contractId} onChange={(e) => setContractId(e.target.value)} className="rounded border border-slate-200 px-2 py-1 text-xs">
+      <select value={contractId} onChange={(e) => setContractId(e.target.value)} className="rounded border border-neutral-200 px-2 py-1 text-xs">
         <option value="">No contract</option>
         {contractOptions.map((c) => (
           <option key={c.id} value={c.id}>{c.name}</option>
         ))}
       </select>
-      <select value={purchaseOrderId} onChange={(e) => setPurchaseOrderId(e.target.value)} className="rounded border border-slate-200 px-2 py-1 text-xs">
+      <select value={purchaseOrderId} onChange={(e) => setPurchaseOrderId(e.target.value)} className="rounded border border-neutral-200 px-2 py-1 text-xs">
         <option value="">No PO</option>
         {poOptions.map((p) => (
           <option key={p.id} value={p.id}>PO-{p.id.slice(-6).toUpperCase()}</option>
@@ -113,7 +113,7 @@ export function CreateValueItemForm({
       <button
         type="submit"
         disabled={submitting || !title.trim() || !amount}
-        className="text-xs font-medium rounded-lg px-3 py-1.5 text-white bg-[#0B1220] hover:bg-slate-800 disabled:bg-slate-300"
+        className="text-xs font-medium rounded-full px-3 py-1.5 text-white bg-accent-600 hover:bg-accent-700 disabled:bg-neutral-300"
       >
         Submit
       </button>

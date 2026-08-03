@@ -33,17 +33,17 @@ export default async function PurchaseOrderDetailPage({ params }: { params: Prom
     <div className="mx-auto w-full max-w-4xl space-y-6 p-8">
       <div>
         <div className="flex items-center gap-2 text-xs font-medium">
-          <Link href={`/suppliers/${order.supplier.id}`} className="text-[#2563EB] hover:underline">{order.supplier.name}</Link>
+          <Link href={`/suppliers/${order.supplier.id}`} className="text-accent-700 hover:underline">{order.supplier.name}</Link>
           {order.contract && (
             <>
               <span className="text-slate-300">·</span>
-              <Link href={`/contracts/${order.contract.id}`} className="text-[#2563EB] hover:underline">{order.contract.name}</Link>
+              <Link href={`/contracts/${order.contract.id}`} className="text-accent-700 hover:underline">{order.contract.name}</Link>
             </>
           )}
           {order.originIntakeRequest && (
             <>
               <span className="text-slate-300">·</span>
-              <Link href={`/intake/${order.originIntakeRequest.id}`} className="text-[#2563EB] hover:underline">from intake: {order.originIntakeRequest.title}</Link>
+              <Link href={`/intake/${order.originIntakeRequest.id}`} className="text-accent-700 hover:underline">from intake: {order.originIntakeRequest.title}</Link>
             </>
           )}
         </div>

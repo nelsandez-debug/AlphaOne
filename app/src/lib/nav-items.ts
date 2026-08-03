@@ -14,6 +14,7 @@ import {
   Shield,
   ShieldAlert,
   ShieldCheck,
+  ShoppingBag,
   ShoppingCart,
   TrendingUp,
   Truck,
@@ -41,11 +42,17 @@ export const NAV_SECTIONS: NavSection[] = [
   {
     label: "Source to pay",
     items: [
-      { href: "/intake", label: "Intake", icon: Inbox, moduleKey: "intake" },
+      // Labels renamed to match the P2P V2 design handoff (Intake -> Requisitions,
+      // Sourcing -> RFx); href/moduleKey deliberately left as-is for now — schema
+      // and routing changes to match are deferred to a follow-up pass.
+      { href: "/intake", label: "Requisitions", icon: Inbox, moduleKey: "intake" },
       { href: "/suppliers", label: "Suppliers", icon: Truck, moduleKey: "suppliers" },
       { href: "/contracts", label: "Contracts", icon: FileText, moduleKey: "contracts" },
       { href: "/services", label: "Services", icon: Layers, moduleKey: "services" },
-      { href: "/sourcing", label: "Sourcing", icon: Gavel, moduleKey: "sourcing" },
+      { href: "/sourcing", label: "RFx", icon: Gavel, moduleKey: "sourcing" },
+      // No schema/permission module yet — styling-only addition per design handoff;
+      // visible to all signed-in users until a real Guided Buying module exists.
+      { href: "/guided-buying", label: "Guided Buying", icon: ShoppingBag },
       { href: "/purchase-orders", label: "Purchase Orders", icon: ShoppingCart, moduleKey: "purchase-orders" },
       { href: "/invoices", label: "Invoices", icon: Receipt, moduleKey: "invoices" },
       { href: "/vendor-management", label: "Vendor Management", icon: ShieldCheck, moduleKey: "vendor-management" },

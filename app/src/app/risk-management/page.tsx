@@ -26,7 +26,7 @@ export default async function RiskManagementPage() {
         {access.editable && <CreateRiskFlagForm suppliers={suppliers} />}
       </div>
 
-      <div className="rounded-xl border border-slate-200 bg-white p-5 flex items-center gap-3">
+      <div className="glass p-5 flex items-center gap-3">
         <div className="h-10 w-10 rounded-lg bg-rose-50 flex items-center justify-center">
           <ShieldAlert size={18} className="text-rose-500" />
         </div>

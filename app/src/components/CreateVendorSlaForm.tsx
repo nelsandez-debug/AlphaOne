@@ -14,7 +14,7 @@ export function CreateVendorSlaForm({ suppliers }: { suppliers: { id: string; na
 
   if (!open) {
     return (
-      <button type="button" onClick={() => setOpen(true)} className="inline-flex items-center gap-1.5 text-xs font-medium text-[#2563EB] hover:underline">
+      <button type="button" onClick={() => setOpen(true)} className="inline-flex items-center gap-1.5 text-xs font-medium text-accent-700 hover:underline">
         <Plus size={13} /> Establish SLA
       </button>
     );
@@ -39,15 +39,15 @@ export function CreateVendorSlaForm({ suppliers }: { suppliers: { id: string; na
   };
 
   return (
-    <form onSubmit={submit} className="flex flex-wrap items-center gap-2 rounded-lg border border-slate-200 bg-white p-3">
-      <select value={supplierId} onChange={(e) => setSupplierId(e.target.value)} className="rounded border border-slate-200 px-2 py-1 text-xs">
+    <form onSubmit={submit} className="flex flex-wrap items-center gap-2 glass p-3">
+      <select value={supplierId} onChange={(e) => setSupplierId(e.target.value)} className="rounded border border-neutral-200 px-2 py-1 text-xs">
         {suppliers.map((s) => (
           <option key={s.id} value={s.id}>{s.name}</option>
         ))}
       </select>
-      <input value={metric} onChange={(e) => setMetric(e.target.value)} placeholder="Metric (e.g. Uptime)" className="rounded border border-slate-200 px-2 py-1 text-xs" />
-      <input value={target} onChange={(e) => setTarget(e.target.value)} placeholder="Target (e.g. 99.9%)" className="rounded border border-slate-200 px-2 py-1 text-xs w-28" />
-      <button type="submit" disabled={submitting} className="text-xs font-medium rounded-lg px-3 py-1.5 text-white bg-[#0B1220] hover:bg-slate-800 disabled:bg-slate-300">
+      <input value={metric} onChange={(e) => setMetric(e.target.value)} placeholder="Metric (e.g. Uptime)" className="rounded border border-neutral-200 px-2 py-1 text-xs" />
+      <input value={target} onChange={(e) => setTarget(e.target.value)} placeholder="Target (e.g. 99.9%)" className="rounded border border-neutral-200 px-2 py-1 text-xs w-28" />
+      <button type="submit" disabled={submitting} className="text-xs font-medium rounded-full px-3 py-1.5 text-white bg-accent-600 hover:bg-accent-700 disabled:bg-neutral-300">
         Create
       </button>
       <button type="button" onClick={() => setOpen(false)} className="text-slate-400 hover:text-slate-600">

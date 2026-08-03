@@ -48,7 +48,7 @@ export function ContractHeaderFields({ contract, editable }: { contract: Contrac
         value={contract.status}
         editable={editable}
         options={toOptions(CONTRACT_STATUS_LABELS)}
-        renderValue={(v) => <span className="rounded-full border border-slate-200 bg-slate-50 px-2 py-0.5 text-xs">{CONTRACT_STATUS_LABELS[v as keyof typeof CONTRACT_STATUS_LABELS]}</span>}
+        renderValue={(v) => <span className="rounded-full border border-neutral-200 bg-neutral-100 px-2 py-0.5 text-xs">{CONTRACT_STATUS_LABELS[v as keyof typeof CONTRACT_STATUS_LABELS]}</span>}
         onSave={(status) => patch({ status })}
       />
       <EditableSelect

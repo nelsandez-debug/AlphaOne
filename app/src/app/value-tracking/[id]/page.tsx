@@ -34,7 +34,7 @@ export default async function ValueTrackingDetailPage({ params }: { params: Prom
   return (
     <div className="mx-auto w-full max-w-4xl space-y-6 p-8">
       <div>
-        <Link href={`/suppliers/${item.supplier.id}`} className="text-xs font-medium text-[#2563EB] hover:underline">{item.supplier.name}</Link>
+        <Link href={`/suppliers/${item.supplier.id}`} className="text-xs font-medium text-accent-700 hover:underline">{item.supplier.name}</Link>
         <h1 className="text-xl font-semibold text-slate-900">{item.title}</h1>
         <div className="mt-2 flex flex-wrap items-center gap-x-4 gap-y-2 text-sm">
           <span className="text-slate-600">{VALUE_TYPE_LABELS[item.type]}</span>
@@ -47,10 +47,10 @@ export default async function ValueTrackingDetailPage({ params }: { params: Prom
           <span>Credited to {item.creditedTo.name}</span>
           {item.financeApprover && <span>Reviewed by {item.financeApprover.name}</span>}
           {item.contract && (
-            <Link href={`/contracts/${item.contract.id}`} className="text-[#2563EB] hover:underline">{item.contract.name}</Link>
+            <Link href={`/contracts/${item.contract.id}`} className="text-accent-700 hover:underline">{item.contract.name}</Link>
           )}
           {item.purchaseOrder && (
-            <Link href={`/purchase-orders/${item.purchaseOrder.id}`} className="text-[#2563EB] hover:underline">PO-{item.purchaseOrder.id.slice(-6).toUpperCase()}</Link>
+            <Link href={`/purchase-orders/${item.purchaseOrder.id}`} className="text-accent-700 hover:underline">PO-{item.purchaseOrder.id.slice(-6).toUpperCase()}</Link>
           )}
         </div>
       </div>

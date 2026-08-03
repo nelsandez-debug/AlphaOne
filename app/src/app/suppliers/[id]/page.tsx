@@ -53,7 +53,7 @@ export default async function SupplierDetailPage({ params }: { params: Promise<{
         <RelationshipCard icon={FileText} title="Contracts" count={supplier.contracts.length} href={`/contracts?supplierId=${id}`}>
           <div className="space-y-2">
             {supplier.contracts.map((c) => (
-              <Link key={c.id} href={`/contracts/${c.id}`} className="block rounded-lg bg-slate-50 border border-slate-200 px-3 py-2 hover:border-[#2563EB]">
+              <Link key={c.id} href={`/contracts/${c.id}`} className="block rounded-lg bg-neutral-100 border border-neutral-200 px-3 py-2 hover:border-accent-500">
                 <p className="text-xs font-medium text-slate-700">{c.name}</p>
                 <p className="text-[11px] text-slate-400">{c.type} · {CONTRACT_STATUS_LABELS[c.status]}</p>
               </Link>
@@ -64,7 +64,7 @@ export default async function SupplierDetailPage({ params }: { params: Promise<{
         <RelationshipCard icon={Layers} title="Services" count={supplier.services.length} href={`/services?supplierId=${id}`}>
           <div className="space-y-2">
             {supplier.services.map((s) => (
-              <Link key={s.id} href={`/services/${s.id}`} className="block rounded-lg bg-slate-50 border border-slate-200 px-3 py-2 hover:border-[#2563EB]">
+              <Link key={s.id} href={`/services/${s.id}`} className="block rounded-lg bg-neutral-100 border border-neutral-200 px-3 py-2 hover:border-accent-500">
                 <p className="text-xs font-medium text-slate-700">{s.name}</p>
                 <p className="text-[11px] text-slate-400">{s.category}</p>
               </Link>

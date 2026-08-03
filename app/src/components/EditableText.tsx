@@ -46,7 +46,7 @@ export function EditableText({
             setEditing(false);
           }
         }}
-        className={`rounded border border-[#2563EB] px-1.5 py-0.5 outline-none ${inputClassName || className}`}
+        className={`rounded border border-accent-500 px-1.5 py-0.5 outline-none ${inputClassName || className}`}
       />
     );
   }
@@ -58,7 +58,7 @@ export function EditableText({
         setDraft(value ?? "");
         setEditing(true);
       }}
-      className={`group inline-flex items-center gap-1 text-left hover:bg-slate-50 rounded px-0.5 -mx-0.5 ${className}`}
+      className={`group inline-flex items-center gap-1 text-left hover:bg-neutral-100 rounded px-0.5 -mx-0.5 ${className}`}
       title="Click to edit"
     >
       <span className={value ? "" : "text-slate-400 italic"}>{value || placeholder}</span>

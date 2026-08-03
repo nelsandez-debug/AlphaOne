@@ -37,7 +37,7 @@ export function DispositionPanel({
 
   if (!canDisposition(intakeRequest.stage)) {
     return (
-      <div className="rounded-xl border border-slate-200 bg-slate-50 p-5 text-sm text-slate-500">
+      <div className="rounded-xl border border-neutral-200 bg-neutral-100 p-5 text-sm text-slate-500">
         This request is in stage <strong>{INTAKE_STAGE_LABELS[intakeRequest.stage]}</strong> and has already been dispositioned.
       </div>
     );
@@ -75,12 +75,12 @@ export function DispositionPanel({
   };
 
   return (
-    <form onSubmit={submit} className="rounded-xl border border-slate-200 bg-white p-5 space-y-3">
+    <form onSubmit={submit} className="glass p-5 space-y-3">
       <p className="text-xs font-semibold uppercase tracking-wide text-slate-400 flex items-center gap-1.5">
         <span className={`h-1.5 w-1.5 rounded-full ${stageDotClass(intakeRequest.stage)}`} /> Disposition
       </p>
 
-      <select value={actionId} onChange={(e) => setActionId(e.target.value)} className="w-full rounded border border-slate-200 px-2 py-1.5 text-sm">
+      <select value={actionId} onChange={(e) => setActionId(e.target.value)} className="w-full rounded border border-neutral-200 px-2 py-1.5 text-sm">
         {actions.map((a) => (
           <option key={a.id} value={a.id}>
             {a.label}
@@ -90,14 +90,14 @@ export function DispositionPanel({
 
       {action.creates === "supplier" && (
         <div className="grid grid-cols-2 gap-2">
-          <input value={name} onChange={(e) => setName(e.target.value)} placeholder="Supplier name" className="col-span-2 rounded border border-slate-200 px-2 py-1 text-xs" />
-          <input value={category} onChange={(e) => setCategory(e.target.value)} placeholder="Category" className="rounded border border-slate-200 px-2 py-1 text-xs" />
-          <select value={tier} onChange={(e) => setTier(e.target.value as typeof tier)} className="rounded border border-slate-200 px-2 py-1 text-xs">
+          <input value={name} onChange={(e) => setName(e.target.value)} placeholder="Supplier name" className="col-span-2 rounded border border-neutral-200 px-2 py-1 text-xs" />
+          <input value={category} onChange={(e) => setCategory(e.target.value)} placeholder="Category" className="rounded border border-neutral-200 px-2 py-1 text-xs" />
+          <select value={tier} onChange={(e) => setTier(e.target.value as typeof tier)} className="rounded border border-neutral-200 px-2 py-1 text-xs">
             {toOptions(SUPPLIER_TIER_LABELS).map((o) => (
               <option key={o.value} value={o.value}>{o.label}</option>
             ))}
           </select>
-          <select value={supplierStatus} onChange={(e) => setSupplierStatus(e.target.value as typeof supplierStatus)} className="col-span-2 rounded border border-slate-200 px-2 py-1 text-xs">
+          <select value={supplierStatus} onChange={(e) => setSupplierStatus(e.target.value as typeof supplierStatus)} className="col-span-2 rounded border border-neutral-200 px-2 py-1 text-xs">
             {toOptions(SUPPLIER_STATUS_LABELS).map((o) => (
               <option key={o.value} value={o.value}>{o.label}</option>
             ))}
@@ -107,14 +107,14 @@ export function DispositionPanel({
 
       {action.creates === "contract" && (
         <div className="grid grid-cols-2 gap-2">
-          <select value={supplierId} onChange={(e) => setSupplierId(e.target.value)} className="col-span-2 rounded border border-slate-200 px-2 py-1 text-xs">
+          <select value={supplierId} onChange={(e) => setSupplierId(e.target.value)} className="col-span-2 rounded border border-neutral-200 px-2 py-1 text-xs">
             {suppliers.map((s) => (
               <option key={s.id} value={s.id}>{s.name}</option>
             ))}
           </select>
-          <input value={name} onChange={(e) => setName(e.target.value)} placeholder="Contract name" className="col-span-2 rounded border border-slate-200 px-2 py-1 text-xs" />
-          <input value={contractType} onChange={(e) => setContractType(e.target.value)} placeholder="Type (MSA, NDA, ...)" className="rounded border border-slate-200 px-2 py-1 text-xs" />
-          <select value={contractStatus} onChange={(e) => setContractStatus(e.target.value as typeof contractStatus)} className="rounded border border-slate-200 px-2 py-1 text-xs">
+          <input value={name} onChange={(e) => setName(e.target.value)} placeholder="Contract name" className="col-span-2 rounded border border-neutral-200 px-2 py-1 text-xs" />
+          <input value={contractType} onChange={(e) => setContractType(e.target.value)} placeholder="Type (MSA, NDA, ...)" className="rounded border border-neutral-200 px-2 py-1 text-xs" />
+          <select value={contractStatus} onChange={(e) => setContractStatus(e.target.value as typeof contractStatus)} className="rounded border border-neutral-200 px-2 py-1 text-xs">
             {toOptions(CONTRACT_STATUS_LABELS).map((o) => (
               <option key={o.value} value={o.value}>{o.label}</option>
             ))}
@@ -130,21 +130,21 @@ export function DispositionPanel({
               setSupplierId(e.target.value);
               setContractId("");
             }}
-            className="col-span-2 rounded border border-slate-200 px-2 py-1 text-xs"
+            className="col-span-2 rounded border border-neutral-200 px-2 py-1 text-xs"
           >
             {suppliers.map((s) => (
               <option key={s.id} value={s.id}>{s.name}</option>
             ))}
           </select>
-          <select value={contractId} onChange={(e) => setContractId(e.target.value)} className="col-span-2 rounded border border-slate-200 px-2 py-1 text-xs">
+          <select value={contractId} onChange={(e) => setContractId(e.target.value)} className="col-span-2 rounded border border-neutral-200 px-2 py-1 text-xs">
             <option value="">No governing contract yet</option>
             {contractOptions.map((c) => (
               <option key={c.id} value={c.id}>{c.name}</option>
             ))}
           </select>
-          <input value={name} onChange={(e) => setName(e.target.value)} placeholder="Service name" className="col-span-2 rounded border border-slate-200 px-2 py-1 text-xs" />
-          <input value={category} onChange={(e) => setCategory(e.target.value)} placeholder="Category" className="rounded border border-slate-200 px-2 py-1 text-xs" />
-          <select value={criticality} onChange={(e) => setCriticality(e.target.value as typeof criticality)} className="rounded border border-slate-200 px-2 py-1 text-xs">
+          <input value={name} onChange={(e) => setName(e.target.value)} placeholder="Service name" className="col-span-2 rounded border border-neutral-200 px-2 py-1 text-xs" />
+          <input value={category} onChange={(e) => setCategory(e.target.value)} placeholder="Category" className="rounded border border-neutral-200 px-2 py-1 text-xs" />
+          <select value={criticality} onChange={(e) => setCriticality(e.target.value as typeof criticality)} className="rounded border border-neutral-200 px-2 py-1 text-xs">
             {toOptions(SERVICE_CRITICALITY_LABELS).map((o) => (
               <option key={o.value} value={o.value}>{o.label}</option>
             ))}
@@ -157,7 +157,7 @@ export function DispositionPanel({
         onChange={(e) => setNote(e.target.value)}
         rows={2}
         placeholder="Note (optional) — recorded on the audit trail"
-        className="w-full rounded border border-slate-200 px-2 py-1.5 text-xs resize-none"
+        className="w-full rounded border border-neutral-200 px-2 py-1.5 text-xs resize-none"
       />
 
       {error && <p className="text-xs text-red-600">{error}</p>}
@@ -165,7 +165,7 @@ export function DispositionPanel({
       <button
         type="submit"
         disabled={submitting}
-        className="text-xs font-medium rounded-lg px-3 py-1.5 text-white bg-[#0B1220] hover:bg-slate-800 disabled:bg-slate-300"
+        className="text-xs font-medium rounded-full px-3 py-1.5 text-white bg-accent-600 hover:bg-accent-700 disabled:bg-neutral-300"
       >
         Apply disposition
       </button>
