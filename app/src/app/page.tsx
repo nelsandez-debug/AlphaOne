@@ -1,3 +1,4 @@
+import { redirect } from "next/navigation";
 import { getCurrentUser } from "@/lib/current-user";
 import { computeAnalyticsSummary } from "@/lib/analytics";
 import { computeForecastSummary } from "@/lib/forecast";
@@ -6,7 +7,14 @@ import { KpiCard } from "@/components/dashboard/KpiCard";
 import { SpendTrendChart } from "@/components/dashboard/SpendTrendChart";
 import { CategorySpendChart } from "@/components/dashboard/CategorySpendChart";
 
+// TEMP: "/" unconditionally queries the DB (see below), which 500s while the
+// Hyperdrive->Neon connectivity bug (CLAUDE.md's Hosting section) is open.
+// Redirecting straight to /sign-in — which needs no DB access — keeps the
+// deployed app usable in the meantime. Revert this once that bug is fixed;
+// the dashboard code below is left intact on purpose.
 export default async function Home() {
+  redirect("/sign-in");
+
   const user = await getCurrentUser();
   const [analytics, forecast] = await Promise.all([computeAnalyticsSummary(), computeForecastSummary()]);
 
@@ -18,7 +26,7 @@ export default async function Home() {
   return (
     <div className="mx-auto w-full max-w-6xl flex flex-1 flex-col gap-6 p-4">
       <div>
-        <h1 className="text-2xl">{user ? `Good morning, ${user.name.split(" ")[0]}` : "Control Tower"}</h1>
+        <h1 className="text-2xl">{user ? `Good morning, ${user?.name.split(" ")[0]}` : "Control Tower"}</h1>
         <p className="mt-1 text-sm text-neutral-600">
           Every number below is a live aggregation over real Supplier/Contract/Invoice/PO data — nothing here is a
           fabricated demo metric.
