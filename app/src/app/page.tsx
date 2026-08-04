@@ -1,4 +1,3 @@
-import { redirect } from "next/navigation";
 import { getCurrentUser } from "@/lib/current-user";
 import { computeAnalyticsSummary } from "@/lib/analytics";
 import { computeForecastSummary } from "@/lib/forecast";
@@ -8,15 +7,32 @@ import { SpendTrendChart } from "@/components/dashboard/SpendTrendChart";
 import { CategorySpendChart } from "@/components/dashboard/CategorySpendChart";
 
 // TEMP: "/" unconditionally queries the DB (see below), which 500s while the
-// Hyperdrive->Neon connectivity bug (CLAUDE.md's Hosting section) is open.
-// Redirecting straight to /sign-in — which needs no DB access — keeps the
-// deployed app usable in the meantime. Revert this once that bug is fixed;
-// the dashboard code below is left intact on purpose.
+// Hyperdrive->Neon connectivity bug (CLAUDE.md's Hosting section) is open. An
+// earlier version of this page unconditionally redirect()-ed to /sign-in
+// instead of catching the error -- that redirect ran before Clerk's own
+// post-sign-in redirect target (also "/", by default) had a chance to see an
+// authenticated session, so a signed-in visitor bounced / -> /sign-in ->
+// (already signed in) -> / -> /sign-in forever (ERR_TOO_MANY_REDIRECTS).
+// Catching the DB failure here instead lets a signed-in visitor land on "/"
+// without looping, at the cost of a plain fallback message instead of the
+// dashboard. Revert this once the Hyperdrive bug is fixed; the dashboard
+// code below is unchanged.
 export default async function Home() {
-  redirect("/sign-in");
-
-  const user = await getCurrentUser();
-  const [analytics, forecast] = await Promise.all([computeAnalyticsSummary(), computeForecastSummary()]);
+  let user, analytics, forecast;
+  try {
+    user = await getCurrentUser();
+    [analytics, forecast] = await Promise.all([computeAnalyticsSummary(), computeForecastSummary()]);
+  } catch {
+    return (
+      <div className="mx-auto flex w-full max-w-2xl flex-1 flex-col items-center justify-center gap-3 p-4 text-center">
+        <h1 className="text-2xl">Dashboard temporarily unavailable</h1>
+        <p className="text-sm text-neutral-600">
+          We&apos;re unable to reach the database right now. The rest of the app that needs it will be unavailable
+          too until this is resolved — sign-in/sign-up still work.
+        </p>
+      </div>
+    );
+  }
 
   const budgetUtilization = analytics.budgetAllocated > 0 ? (analytics.budgetUsed / analytics.budgetAllocated) * 100 : 0;
   const valueTotal = analytics.realizedValue + analytics.pendingValue;
