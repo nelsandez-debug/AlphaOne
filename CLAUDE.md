@@ -332,6 +332,23 @@ prototype spec, not code we ship.)_
   `pg-cloudflare` exports fix above (tested explicitly). The diagnostic Worker
   (`hyperdrive-mintest`) must stay deployed until this is resolved — it's the reproduction
   proving the bug is upstream, not in this app.
+  ⚠️ **Cloudflare support follow-up (case #02263865), tried, not yet sufficient:** support
+  root-caused the *bundling* half precisely — Next's file tracer (`@vercel/nft`) can't
+  statically follow `pg`'s runtime-gated `require("pg-cloudflare")` (behind an
+  `isCloudflareRuntime()` check), so only `pg-cloudflare`'s stub `dist/empty.js` got copied
+  into OpenNext's output, never the real `dist/index.js`/`CloudflareSocket`. Their fix —
+  `outputFileTracingIncludes` in `next.config.ts` forcing the workerd files in — was applied
+  and *confirmed working at that layer*: `handler.mjs` now genuinely contains the real
+  `CloudflareSocket`/`cloudflare:sockets` code (grepped after rebuild), which it did not
+  before. But the deployed Worker still throws the identical
+  `proxy request failed, cannot connect to the specified address` on a fresh request
+  (confirmed live via `wrangler tail`, not a cached response), and the runtime gate
+  (`navigator.userAgent === "Cloudflare-Workers"`) reads correctly in the compiled output too.
+  So something further down the chain — Wrangler's own final bundling pass, or the actual
+  runtime dispatch — still isn't using the now-correctly-bundled implementation. Reported
+  back to the ticket with this specific evidence rather than guessing further. The
+  `outputFileTracingIncludes` change is kept in `next.config.ts` (it's real, verified
+  progress, just not sufficient on its own) pending their next reply.
 - **Testing:** Vitest for unit/integration tests (see `src/**/*.test.ts`); Playwright for
   critical flows (approval chains, permission boundaries, financial calculations,
   cross-module data integrity) once there's UI worth driving end-to-end.
